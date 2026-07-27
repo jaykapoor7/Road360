@@ -115,6 +115,13 @@ export async function finalizeTrip(
   // Only these keys change, so this stays cheap even with a long history.
   await rebuildAggregates(repo, trip);
 
+  // Demo drives must not pollute real stats or achievements. Lifetime already
+  // excludes them (isCountable); achievements are guarded here, because some
+  // are trip-scoped and would otherwise unlock on a simulated drive.
+  if (trip.simulated) {
+    return { trip, unlocked: [] };
+  }
+
   // Achievements are judged against the lifetime totals that now include this trip.
   const lifetime = await repo.aggregates.lifetime();
   const alreadyUnlocked = new Set((await repo.achievements.all()).map((a) => a.id));

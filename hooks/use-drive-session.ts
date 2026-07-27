@@ -180,6 +180,9 @@ export function useDriveSession() {
       setState('idle');
       return { tripId: trip.id, unlocked };
     } catch (e) {
+      // Surface the real cause: a swallowed finalize error otherwise looks like
+      // a drive that simply never ends.
+      console.error('Road360: failed to finalize drive', e);
       setError(e instanceof Error ? e.message : 'Could not save the drive.');
       setState('error');
       return null;
