@@ -90,6 +90,11 @@ export function formatDateLong(ts: number): string {
   });
 }
 
+/** "July 2026" for a Date — the label used by Wrapped and the stats header. */
+export function monthKeyLabel(date: Date): string {
+  return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+}
+
 export function formatMonthLabel(key: string): string {
   const [y, m] = key.split('-').map(Number);
   if (!y || !m) return key;
