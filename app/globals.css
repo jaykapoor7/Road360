@@ -1,0 +1,223 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------------- *
+ * Road360 design tokens
+ *
+ * Colours are declared as HEX on purpose, not oklch(). Share cards are
+ * rasterised by html-to-image through an SVG <foreignObject>, and older WebKit
+ * drops colour functions it does not recognise — which would silently turn a
+ * shared card monochrome. One hex palette serves both the app and the cards, so
+ * there is no second palette to keep in sync.
+ * ------------------------------------------------------------------------- */
+@theme {
+  /* Surfaces — near-black with a cool cast, Apple Fitness / WHOOP territory */
+  --color-void: #07070a;
+  --color-abyss: #0b0c11;
+  --color-surface: #101219;
+  --color-surface-2: #171a24;
+  --color-surface-3: #1f2331;
+  --color-hairline: #272b3a;
+
+  /* Text */
+  --color-ink: #f7f8fa;
+  --color-ink-muted: #a2a8bb;
+  --color-ink-faint: #6b7186;
+
+  /* Brand */
+  --color-brand: #6366f1;
+  --color-brand-bright: #818cf8;
+  --color-cyan: #22d3ee;
+  --color-mint: #34d399;
+  --color-amber: #fbbf24;
+  --color-orange: #fb923c;
+  --color-rose: #fb7185;
+  --color-crimson: #f43f5e;
+  --color-sky: #60a5fa;
+
+  /* Score bands — kept as explicit pairs so gradients are declarative */
+  --color-band-excellent-from: #34d399;
+  --color-band-excellent-to: #22d3ee;
+  --color-band-normal-from: #60a5fa;
+  --color-band-normal-to: #818cf8;
+  --color-band-stressful-from: #fbbf24;
+  --color-band-stressful-to: #fb923c;
+  --color-band-chaos-from: #fb7185;
+  --color-band-chaos-to: #f43f5e;
+
+  /* Type — a system stack rather than a webfont. It is what Apple Fitness
+     itself renders in, costs no network round-trip, causes no layout shift,
+     and rasterises reliably inside share cards. */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Radii */
+  --radius-card: 1.5rem;
+  --radius-tile: 1.25rem;
+  --radius-pill: 999px;
+
+  /* Motion — mirrored in components/motion/transitions.ts, which is the single
+     source of truth for JS-driven animation. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ------------------------------------------------------------------------- */
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    /* Height of the bottom tab bar, consumed by page padding so content never
+       hides behind it. */
+    --tab-bar-h: 4.5rem;
+  }
+
+  html {
+    background-color: var(--color-void);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    overscroll-behavior-y: none;
+    /* The app is a fixed-viewport mobile shell; only inner regions scroll. */
+    min-height: 100dvh;
+  }
+
+  /* Numeric readouts must not reflow as digits change — a stat updating at 1 Hz
+     with proportional figures jitters horribly. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  button,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-brand) 40%, transparent);
+  }
+
+  /* Tailwind preflight sets `img { max-width: 100% }`, which breaks Leaflet's
+     absolutely-positioned tile grid and produces torn/offset maps. */
+  .leaflet-container img {
+    max-width: none !important;
+  }
+
+  .leaflet-container {
+    background: var(--color-abyss);
+    font: inherit;
+    outline: none;
+  }
+
+  .leaflet-control-attribution {
+    background: rgb(7 7 10 / 0.7) !important;
+    color: var(--color-ink-faint) !important;
+    font-size: 9px !important;
+    backdrop-filter: blur(8px);
+  }
+
+  .leaflet-control-attribution a {
+    color: var(--color-ink-muted) !important;
+  }
+}
+
+@layer components {
+  /* Glassmorphism. Used freely in the app; deliberately NOT used inside share
+     cards, where backdrop-filter does not composite in foreignObject. */
+  .glass {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.02));
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.06),
+      0 8px 32px -8px rgb(0 0 0 / 0.6);
+  }
+
+  .glass-strong {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.03));
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.1),
+      0 12px 40px -12px rgb(0 0 0 / 0.7);
+  }
+
+  /* Solid equivalent for share cards — same silhouette, no backdrop-filter. */
+  .glass-flat {
+    background: #151823;
+    border: 1px solid #272b3a;
+  }
+
+  .hairline {
+    border-color: rgb(255 255 255 / 0.08);
+  }
+
+  /* Ambient glow behind hero elements. */
+  .aura::before {
+    content: '';
+    position: absolute;
+    inset: -40%;
+    background: radial-gradient(circle at 50% 40%, var(--aura-color, #6366f1) 0%, transparent 62%);
+    opacity: var(--aura-opacity, 0.28);
+    filter: blur(48px);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  /* Subtle film grain — keeps large flat gradients from banding on OLED. */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .safe-t {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-b {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pb-tabs {
+    padding-bottom: calc(var(--tab-bar-h) + env(safe-area-inset-bottom) + 1rem);
+  }
+}
+
+/* Users who ask for reduced motion get a still app, not a slower one. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
