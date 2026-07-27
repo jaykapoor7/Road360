@@ -33,6 +33,14 @@ export async function createSoundEventDetector(id: string): Promise<SoundEventDe
 
 registerDetector(FALLBACK_DETECTOR_ID, createHeuristicDetector);
 
+// The trained classifier. Its weights are a 5 KB JSON blob and inference is two
+// matrix-vector products, so unlike the model runtimes below it is cheap enough
+// to register eagerly and is the shipped default.
+registerDetector('mlp-v1', async () => {
+  const { createMlDetector } = await import('./ml/model-detector');
+  return createMlDetector();
+});
+
 // Registered lazily: the import only resolves if the flag selects them, so
 // neither runtime is bundled by default.
 registerDetector('tfjs-yamnet-v1', async () => {

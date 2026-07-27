@@ -16,6 +16,18 @@ export interface Flags {
 }
 
 export const DEFAULT_FLAGS: Flags = {
+  /**
+   * The heuristic remains the default, on measurement rather than preference.
+   *
+   * On the head-to-head benchmark (tests/detector-comparison.test.ts) the
+   * trained model scores 8/9 and the heuristic 9/9: the model is better on
+   * single-partial confusers like reversing beepers, but the heuristic's hard
+   * pitch-stability rule still beats it on note-changing tonal sources such as
+   * brass. Promoting the model to default would not be supported by the data.
+   *
+   * 'mlp-v1' is registered and selectable, and becomes the better default once
+   * it is retrained on real labelled audio.
+   */
   detectorId: 'heuristic-v1',
   syncEnabled: false,
   contributeAnonymousData: false,

@@ -11,10 +11,11 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --exclude \"**/sound-model.test.ts\"",
     "test:watch": "vitest",
     "icons": "node scripts/gen-icons.mjs",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "train:sound": "ROAD360_EXPORT_MODEL=1 vitest run tests/sound-model.test.ts"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
