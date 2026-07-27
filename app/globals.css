@@ -104,28 +104,44 @@
     background: color-mix(in srgb, var(--color-brand) 40%, transparent);
   }
 
-  /* Tailwind preflight sets `img { max-width: 100% }`, which breaks Leaflet's
-     absolutely-positioned tile grid and produces torn/offset maps. */
-  .leaflet-container img {
-    max-width: none !important;
-  }
+}
 
-  .leaflet-container {
-    background: var(--color-abyss);
-    font: inherit;
-    outline: none;
-  }
+/* ------------------------------------------------------------------------- *
+ * Leaflet overrides — deliberately UNLAYERED.
+ *
+ * Leaflet's stylesheet is imported by the map component without a cascade
+ * layer, and unlayered CSS always beats layered CSS regardless of source
+ * order. If these lived in `@layer base` they would lose to Leaflet's own
+ * `.leaflet-container { background: #ddd }`, and the map would render light
+ * grey. Keeping them unlayered lets them win. This also lets the img rule beat
+ * Tailwind preflight, which sets `img { max-width: 100% }` and otherwise tears
+ * the tile grid apart.
+ * ------------------------------------------------------------------------- */
+.leaflet-container {
+  background: #0b0c11 !important;
+  font: inherit;
+  outline: none;
+}
 
-  .leaflet-control-attribution {
-    background: rgb(7 7 10 / 0.7) !important;
-    color: var(--color-ink-faint) !important;
-    font-size: 9px !important;
-    backdrop-filter: blur(8px);
-  }
+.leaflet-container img {
+  max-width: none !important;
+}
 
-  .leaflet-control-attribution a {
-    color: var(--color-ink-muted) !important;
-  }
+/* When tiles fail to load (offline, or a blocked network) show nothing rather
+   than a broken-image box, so the map degrades to a clean dark panel. */
+.leaflet-tile {
+  background: #0b0c11;
+}
+
+.leaflet-control-attribution {
+  background: rgb(7 7 10 / 0.7) !important;
+  color: #6b7186 !important;
+  font-size: 9px !important;
+  backdrop-filter: blur(8px);
+}
+
+.leaflet-control-attribution a {
+  color: #a2a8bb !important;
 }
 
 @layer components {

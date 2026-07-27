@@ -52,8 +52,14 @@ export default tseslint.config(
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs['core-web-vitals'].rules,
       ...reactPlugin.configs.flat.recommended.rules,
-      ...reactHooks.configs['recommended-latest'].rules,
       ...jsxA11y.flatConfigs.recommended.rules,
+
+      // The classic Rules of Hooks, without the React Compiler's purity and
+      // set-state-in-effect rules. Those are the `recommended-latest` preset and
+      // assume the compiler is in use; this app is not compiled, and they flag
+      // legitimate patterns (the SSR mount-guard, Date.now() in a tap handler).
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
 
       // The new JSX transform makes both of these obsolete.
       'react/react-in-jsx-scope': 'off',
