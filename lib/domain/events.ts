@@ -105,6 +105,32 @@ export type TripEvent =
 
 export type TripEventType = TripEvent['type'];
 
+/**
+ * `Omit` over a union collapses to the keys the members share, which would
+ * erase every variant-specific field. This distributes over the union so each
+ * member keeps its own shape.
+ */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
+type DraftOf<E extends TripEvent> = Omit<
+  E,
+  keyof SyncMeta | 'id' | 'tripId' | 'seq' | 't' | 'lat' | 'lon' | 'gh'
+> &
+  Partial<Pick<E, 'lat' | 'lon' | 'gh'>>;
+
+/**
+ * An event as authored by the recording engine, before identity, sequence and
+ * sync metadata are stamped on. Position is optional because a GPS-denied trip
+ * still produces perfectly valid brake and horn events.
+ */
+export type TripEventDraft = TripEvent extends infer E
+  ? E extends TripEvent
+    ? DraftOf<E>
+    : never
+  : never;
+
+export type { DistributiveOmit };
+
 /* --------------------------------- guards -------------------------------- */
 
 export const isSound = (e: TripEvent): e is SoundEvent => e.type === 'sound';

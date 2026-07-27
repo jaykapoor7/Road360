@@ -70,6 +70,8 @@ export const AUDIO = {
   /** 16 kHz quarters FFT cost versus 48 kHz and still covers horn harmonics to 8 kHz. */
   targetSampleRate: 16_000,
   fftSize: 1024,
+  /** Milliseconds between analysis frames — 20 Hz. */
+  hopMs: AUDIO_HOP_MS,
   /** Default dBFS → pseudo-SPL offset. User-adjustable; `calibrated` stays false until set. */
   defaultCalibrationOffset: 94,
   noiseFloorWindowMs: 2000,
