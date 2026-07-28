@@ -34,7 +34,7 @@ export function presentEvent(event: TripEvent): TimelineItemView {
         label: `${label}${blasts}`,
         detail: `${formatDb(event.db)} · ${(event.confidence * 100).toFixed(0)}% sure`,
         tone: 'negative',
-        color: event.sound === 'siren' ? '#fb923c' : '#fbbf24',
+        color: event.sound === 'siren' ? '#C8814F' : '#D0A35C',
       };
     }
     case 'brake':
@@ -43,7 +43,7 @@ export function presentEvent(event: TripEvent): TimelineItemView {
         label: event.severity === 'severe' ? 'Severe brake' : 'Hard brake',
         detail: `${event.peakDecel.toFixed(1)} m/s²`,
         tone: 'negative',
-        color: '#fb7185',
+        color: '#CD6D6D',
       };
     case 'accel':
       return {
@@ -51,7 +51,7 @@ export function presentEvent(event: TripEvent): TimelineItemView {
         label: event.severity === 'aggressive' ? 'Aggressive launch' : 'Rapid acceleration',
         detail: `+${event.peakAccel.toFixed(1)} m/s²`,
         tone: 'negative',
-        color: '#fb923c',
+        color: '#C8814F',
       };
     case 'stop':
       return {
@@ -59,7 +59,7 @@ export function presentEvent(event: TripEvent): TimelineItemView {
         label: 'Stopped',
         detail: formatDurationCompact(event.durationMs),
         tone: 'neutral',
-        color: '#6b7186',
+        color: '#57575D',
       };
     case 'peakDb':
       return {
@@ -67,7 +67,7 @@ export function presentEvent(event: TripEvent): TimelineItemView {
         label: 'Loudest moment',
         detail: formatDb(event.db),
         tone: 'negative',
-        color: '#f43f5e',
+        color: '#BD5754',
       };
     case 'gap':
       return {
@@ -75,7 +75,7 @@ export function presentEvent(event: TripEvent): TimelineItemView {
         label: 'Tracking paused',
         detail: formatDurationCompact(event.durationMs),
         tone: 'neutral',
-        color: '#6b7186',
+        color: '#57575D',
       };
   }
 }

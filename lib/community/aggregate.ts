@@ -228,7 +228,7 @@ export function buildCommunitySnapshot(
 }
 
 /** Green → red ramp for heat cells. Hex, matching the rest of the app. */
-export const HEAT_COLORS = ['#22D3EE', '#34D399', '#FBBF24', '#FB923C', '#F43F5E'] as const;
+export const HEAT_COLORS = ['#34D9A0', '#7F8A9E', '#D0A35C', '#C8814F', '#CD6D6D'] as const;
 
 export function heatColor(intensity: number): string {
   const index = Math.min(HEAT_COLORS.length - 1, Math.floor(clamp01(intensity) * HEAT_COLORS.length));

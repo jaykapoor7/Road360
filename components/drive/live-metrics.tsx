@@ -34,7 +34,6 @@ function HornTile() {
     <StatTile
       label="Horns"
       icon={<Megaphone size={13} />}
-      accent="#FFC043"
       footnote={gap ? `every ${gap.toFixed(1)}s on average` : 'none yet'}
     >
       <MetricNumber value={count} />
@@ -49,7 +48,6 @@ function SilenceTile() {
     <StatTile
       label="Longest calm"
       icon={<Timer size={13} />}
-      accent="#00E08C"
       footnote={`${formatDurationCompact(current)} and counting`}
     >
       {formatDurationCompact(longest)}
@@ -88,7 +86,7 @@ function NoiseTile() {
 function BrakeTile() {
   const brakes = useSessionValue('metrics', (m) => m.hardBrakes);
   return (
-    <StatTile label="Hard brakes" icon={<ShieldAlert size={13} />} accent="#FF5470">
+    <StatTile label="Hard brakes" icon={<ShieldAlert size={13} />}>
       <MetricNumber value={brakes} />
     </StatTile>
   );
@@ -97,7 +95,7 @@ function BrakeTile() {
 function AccelTile() {
   const accels = useSessionValue('metrics', (m) => m.rapidAccels);
   return (
-    <StatTile label="Rapid accel" icon={<Zap size={13} />} accent="#FF8A3D">
+    <StatTile label="Rapid accel" icon={<Zap size={13} />}>
       <MetricNumber value={accels} />
     </StatTile>
   );

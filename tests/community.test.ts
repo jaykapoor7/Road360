@@ -106,7 +106,7 @@ describe('heat cells', () => {
 
   it('maps intensity onto the colour ramp', () => {
     expect(heatColor(0)).not.toBe(heatColor(1));
-    expect(heatColor(1)).toBe('#F43F5E');
+    expect(heatColor(1)).toBe('#CD6D6D');
   });
 });
 

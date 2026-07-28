@@ -20,7 +20,10 @@ export interface IntensityRun {
 }
 
 /** Five-stop ramp, green → red. Hex, so it also works inside share-card rasters. */
-export const INTENSITY_COLORS = ['#22D3EE', '#34D399', '#FBBF24', '#FB923C', '#F43F5E'] as const;
+// Calm → chaotic, in the muted score palette. The route line is the one place
+// the whole scale appears at once, so it has to read as a single considered
+// gradient, not five unrelated highlighters.
+export const INTENSITY_COLORS = ['#34D9A0', '#7F8A9E', '#D0A35C', '#C8814F', '#CD6D6D'] as const;
 
 const NEAR_EVENT_MS = 4000;
 

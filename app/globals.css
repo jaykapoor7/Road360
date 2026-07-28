@@ -17,45 +17,54 @@
 @theme {
   /* Surfaces. True black canvas — on OLED the card edges float rather than
      sitting in a grey box, which is what makes the layout read as depth
-     without a single shadow or blur. */
+     without a single shadow or blur. The step between surfaces is deliberately
+     small: barely-there separation reads as considered; obvious grey boxes read
+     as a template. */
   --color-void: #000000;
-  --color-abyss: #060608;
-  --color-surface: #0e0e11;
-  --color-surface-2: #17171c;
-  --color-surface-3: #202027;
-  --color-hairline: #232329;
+  --color-abyss: #060607;
+  --color-surface: #0c0c0e;
+  --color-surface-2: #141416;
+  --color-surface-3: #1c1c1f;
+  --color-hairline: #1f1f22;
 
-  /* Text — a three-step ramp. Anything below `faint` is unreadable at 11px on
-     a phone in daylight, so there is no fourth step. */
-  --color-ink: #ffffff;
-  --color-ink-muted: #9a9aa5;
-  --color-ink-faint: #62626e;
+  /* Text — a three-step ramp. Off-white rather than pure white; #fff on true
+     black vibrates on OLED, and the softer white reads more like paper. */
+  --color-ink: #f5f5f4;
+  --color-ink-muted: #8b8b90;
+  --color-ink-faint: #57575d;
 
-  /* Accent. One signal colour for actions and live state. */
-  --color-brand: #00e08c;
-  --color-brand-bright: #4dffb8;
-  --color-brand-dim: #00996040;
+  /* Accent. One signal colour, for actions and live state and nothing else.
+     A calm, slightly deep green — an instrument light, not a highlighter. */
+  --color-brand: #34d9a0;
+  --color-brand-bright: #5fe8bd;
+  --color-brand-dim: #1e7a5a40;
 
-  /* Data colours. Used on numbers, rings and bars — never as a background. */
-  --color-cyan: #22d3ee;
-  --color-mint: #00e08c;
-  --color-amber: #ffc043;
-  --color-orange: #ff8a3d;
-  --color-rose: #ff5470;
-  --color-crimson: #ff2d55;
-  --color-sky: #4ea8ff;
-  --color-violet: #8b7dff;
+  /* Semantic colours, muted on purpose. Reserved for the score scale and the
+     rare warning — never a tile background, never decoration. Each is pulled
+     well off full saturation so a screen never shouts. `normal` sits at a
+     near-monochrome slate, keeping saturation for the two extremes where it
+     carries meaning. */
+  --color-mint: #34d9a0;
+  --color-slate: #7f8a9e;
+  --color-amber: #d0a35c;
+  --color-orange: #c8814f;
+  --color-rose: #cd6a6a;
+  --color-crimson: #bf5a58;
+  --color-cyan: #5bb2bf;
+  --color-sky: #6e8fbf;
+  --color-violet: #8983bd;
 
   /* Score bands — explicit pairs so ring gradients stay declarative, and so
-     the share card can read the same two stops without recomputing them. */
-  --color-band-excellent-from: #00e08c;
-  --color-band-excellent-to: #00c8b4;
-  --color-band-normal-from: #4ea8ff;
-  --color-band-normal-to: #6e8bff;
-  --color-band-stressful-from: #ffc043;
-  --color-band-stressful-to: #ff8a3d;
-  --color-band-chaos-from: #ff5470;
-  --color-band-chaos-to: #ff2d55;
+     the share card can read the same two stops without recomputing them.
+     Each is a quiet gradient within its own hue. */
+  --color-band-excellent-from: #38d6a2;
+  --color-band-excellent-to: #2fb992;
+  --color-band-normal-from: #8590a4;
+  --color-band-normal-to: #6f7c92;
+  --color-band-stressful-from: #d2a45e;
+  --color-band-stressful-to: #c2894c;
+  --color-band-chaos-from: #cd6d6d;
+  --color-band-chaos-to: #bd5754;
 
   /* Type — a system stack rather than a webfont. It is what Apple Fitness
      itself renders in, costs no network round-trip, causes no layout shift,
@@ -65,9 +74,10 @@
     'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 
-  /* Radii */
-  --radius-card: 1.25rem;
-  --radius-tile: 1rem;
+  /* Radii — generous and consistent. Large continuous corners are most of what
+     separates a considered iOS surface from a Bootstrap card. */
+  --radius-card: 1.5rem;
+  --radius-tile: 1.25rem;
   --radius-pill: 999px;
 
   /* Motion — mirrored in components/motion/transitions.ts, which is the single

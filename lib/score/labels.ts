@@ -7,7 +7,6 @@ export interface BandDefinition {
   /** Inclusive lower bound. */
   min: number;
   label: string;
-  emoji: string;
   /** Hex, not oklch — these gradients are reused inside rasterised share cards. */
   from: string;
   to: string;
@@ -20,36 +19,32 @@ export const BANDS: readonly BandDefinition[] = [
     band: 'excellent',
     min: 80,
     label: 'Excellent',
-    emoji: '🟢',
-    from: '#00E08C',
-    to: '#00C8B4',
+    from: '#38D6A2',
+    to: '#2FB992',
     blurb: 'Genuinely calm. Whatever you did, do it again.',
   },
   {
     band: 'normal',
     min: 60,
     label: 'Normal',
-    emoji: '🟡',
-    from: '#4EA8FF',
-    to: '#6E8BFF',
+    from: '#8590A4',
+    to: '#6F7C92',
     blurb: 'An ordinary commute. Nothing dramatic either way.',
   },
   {
     band: 'stressful',
     min: 40,
     label: 'Stressful',
-    emoji: '🟠',
-    from: '#FFC043',
-    to: '#FF8A3D',
+    from: '#D2A45E',
+    to: '#C2894C',
     blurb: 'That took something out of you.',
   },
   {
     band: 'chaos',
     min: 0,
     label: 'Chaos',
-    emoji: '🔴',
-    from: '#FF5470',
-    to: '#FF2D55',
+    from: '#CD6D6D',
+    to: '#BD5754',
     blurb: 'Loud, jerky and relentless. You earned the rest of your day.',
   },
 ] as const;

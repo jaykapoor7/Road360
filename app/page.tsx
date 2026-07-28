@@ -118,8 +118,8 @@ export default function HomePage() {
               <div className="flex flex-col items-center text-center">
                 <ProgressRing
                   value={0}
-                  from="#4EA8FF"
-                  to="#6E8BFF"
+                  from="#8590A4"
+                  to="#6F7C92"
                   gradientId="home-empty"
                   size={224}
                   stroke={11}

@@ -19,7 +19,7 @@ import { useTripDetail } from '@/hooks/use-trip-detail';
 import { buildIntensityRuns, buildEventMarkers } from '@/lib/geo/route-segments';
 import { formatDateLong, formatTimeOfDay } from '@/lib/utils/format';
 import type { TripId } from '@/lib/domain/schema';
-import { fadeUp, staggerParent } from '@/components/motion/transitions';
+import { revealUp, staggerParent } from '@/components/motion/transitions';
 
 export default function TripReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -68,7 +68,7 @@ export default function TripReportPage({ params }: { params: Promise<{ id: strin
 
   return (
     <AppShell>
-      <motion.div variants={staggerParent(0.08)} initial="hidden" animate="show" className="flex flex-col gap-6">
+      <motion.div variants={staggerParent(0.14, 0.12)} initial="hidden" animate="show" className="flex flex-col gap-8">
         {/* Top bar */}
         <div className="flex items-center justify-between gap-3 pt-1">
           <Link
@@ -87,24 +87,24 @@ export default function TripReportPage({ params }: { params: Promise<{ id: strin
           <ShareButton trip={trip} />
         </div>
 
-        <motion.div variants={fadeUp}>
+        <motion.div variants={revealUp}>
           <ScoreReveal score={score} />
         </motion.div>
 
         {trip.summary ? <SummaryNarrative summary={trip.summary} /> : null}
 
         {trip.summary && trip.summary.comparisons.length > 0 ? (
-          <motion.div variants={fadeUp}>
+          <motion.div variants={revealUp}>
             <ComparisonCards comparisons={trip.summary.comparisons} />
           </motion.div>
         ) : null}
 
-        <motion.div variants={fadeUp}>
+        <motion.div variants={revealUp}>
           <ReportStats stats={stats} />
         </motion.div>
 
         {hasRoute ? (
-          <motion.div variants={fadeUp}>
+          <motion.div variants={revealUp}>
             <TripReplay
               samples={detail.samples}
               events={detail.events}
@@ -114,17 +114,17 @@ export default function TripReportPage({ params }: { params: Promise<{ id: strin
           </motion.div>
         ) : null}
 
-        <motion.div variants={fadeUp}>
+        <motion.div variants={revealUp}>
           <ScoreBreakdown score={score} />
         </motion.div>
 
-        <motion.div variants={fadeUp}>
+        <motion.div variants={revealUp}>
           <EventTimeline events={detail.events} />
         </motion.div>
 
         {/* A quiet full route thumbnail at the foot for trips with a map. */}
         {hasRoute ? (
-          <motion.div variants={fadeUp}>
+          <motion.div variants={revealUp}>
             <RouteMapLazy
               className="h-52 rounded-card border border-white/8"
               runs={mapData!.runs}

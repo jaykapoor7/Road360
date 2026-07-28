@@ -9,10 +9,10 @@ import { staggerParent } from '@/components/motion/transitions';
 
 /** Colour a sub-score by how calm it is: green high, rose low. */
 function barColor(value: number): string {
-  if (value >= 75) return '#00E08C';
-  if (value >= 50) return '#FFC043';
-  if (value >= 30) return '#FF8A3D';
-  return '#FF5470';
+  if (value >= 75) return '#34D9A0';
+  if (value >= 50) return '#7F8A9E';
+  if (value >= 30) return '#D0A35C';
+  return '#CD6D6D';
 }
 
 /**

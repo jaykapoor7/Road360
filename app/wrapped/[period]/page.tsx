@@ -77,10 +77,10 @@ export default function WrappedPage({ params }: { params: Promise<{ period: stri
       return `linear-gradient(170deg, ${band.from}38 0%, ${band.to}14 32%, #000000 68%)`;
     }
     const palettes = [
-      'linear-gradient(170deg, #00E08C38 0%, #4EA8FF14 32%, #000000 68%)',
-      'linear-gradient(170deg, #FFC04338 0%, #FF547014 32%, #000000 68%)',
-      'linear-gradient(170deg, #6E8BFF38 0%, #00E08C14 32%, #000000 68%)',
-      'linear-gradient(170deg, #FF2D5538 0%, #FF8A3D14 32%, #000000 68%)',
+      'linear-gradient(170deg, #38D6A238 0%, #6F7C9214 32%, #000000 68%)',
+      'linear-gradient(170deg, #D2A45E38 0%, #CD6D6D14 32%, #000000 68%)',
+      'linear-gradient(170deg, #6F7C9238 0%, #38D6A214 32%, #000000 68%)',
+      'linear-gradient(170deg, #CD6D6D38 0%, #C8814F14 32%, #000000 68%)',
     ];
     return palettes[index % palettes.length]!;
   }, [slide, index]);
@@ -95,7 +95,6 @@ export default function WrappedPage({ params }: { params: Promise<{ period: stri
 
   return (
     <div className="relative min-h-dvh overflow-hidden" style={{ background: gradient }}>
-      <div className="grain absolute inset-0" />
 
       {/* Progress bars */}
       <div className="absolute inset-x-0 top-0 z-20 flex gap-1 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">

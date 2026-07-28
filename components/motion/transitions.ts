@@ -38,6 +38,17 @@ export const fadeIn: Variants = {
   show: { opacity: 1, transition: { duration: DURATION.base, ease: EASE.outExpo } },
 };
 
+/**
+ * A slower, more deliberate rise. Used to reveal the trip report a section at a
+ * time — the report is meant to feel like an unfolding rather than a dashboard
+ * that pops into place all at once, so the travel is longer and the easing
+ * calmer than `fadeUp`.
+ */
+export const revealUp: Variants = {
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: DURATION.slow, ease: EASE.outExpo } },
+};
+
 export const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.94 },
   show: { opacity: 1, scale: 1, transition: SPRING.smooth as Transition },

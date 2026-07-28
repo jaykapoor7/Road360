@@ -18,7 +18,7 @@ import {
   formatDateShort,
   monthKeyLabel,
 } from '@/lib/utils/format';
-import { bandDefinition } from '@/lib/score/labels';
+import { cn } from '@/lib/utils/cn';
 import { staggerParent, fadeUp } from '@/components/motion/transitions';
 
 type Period = 'week' | 'month' | 'all';
@@ -101,7 +101,7 @@ export default function StatsPage() {
                     card is a link, not a headline. */}
                 <span
                   className="absolute inset-y-0 left-0 w-[3px]"
-                  style={{ background: 'linear-gradient(180deg,#00E08C,#6E8BFF)' }}
+                  style={{ background: 'linear-gradient(180deg,#34D9A0,#6F7C92)' }}
                   aria-hidden
                 />
                 <div className="min-w-0">
@@ -124,20 +124,20 @@ export default function StatsPage() {
             <StatTile label="Drives" icon={<Route size={13} />}>
               {inPeriod.length}
             </StatTile>
-            <StatTile label="Distance" icon={<Route size={13} />} accent="#00E08C">
+            <StatTile label="Distance" icon={<Route size={13} />}>
               {formatDistanceLong(periodTotals.distance)}
             </StatTile>
-            <StatTile label="Horns" icon={<Megaphone size={13} />} accent="#FFC043">
+            <StatTile label="Horns" icon={<Megaphone size={13} />}>
               {periodTotals.horns}
             </StatTile>
           </motion.div>
 
           <motion.div variants={fadeUp}>
-            <TrendChart title="Score trend" points={scoreTrend} color="#00E08C" />
+            <TrendChart title="Score trend" points={scoreTrend} color="#34D9A0" />
           </motion.div>
 
           <motion.div variants={fadeUp}>
-            <TrendChart title="Noise trend" points={noiseTrend} unit=" dB" color="#FFC043" />
+            <TrendChart title="Noise trend" points={noiseTrend} unit=" dB" color="#D0A35C" />
           </motion.div>
 
           {/* Lifetime */}
@@ -191,18 +191,21 @@ export default function StatsPage() {
                   <CardTitle>Personal records</CardTitle>
                 </CardHeader>
                 <div className="flex flex-col">
+                  {/* Only the calmest drive — the one you'd actually want to
+                      beat — carries the accent. The rest are plain, so the eye
+                      is drawn to the record that matters rather than to four
+                      competing colours. */}
                   <RecordRow
                     label="Calmest drive"
                     value={String(records.bestScore.value)}
                     href={`/trip/${records.bestScore.tripId}`}
-                    band={bandDefinition('excellent').to}
+                    accent
                   />
                   {records.quietestTrip ? (
                     <RecordRow
                       label="Quietest drive"
                       value={`${Math.round(records.quietestTrip.avgDb)} dB`}
                       href={`/trip/${records.quietestTrip.tripId}`}
-                      band="#00E08C"
                     />
                   ) : null}
                   {records.mostHorns ? (
@@ -210,7 +213,6 @@ export default function StatsPage() {
                       label="Most horns"
                       value={String(records.mostHorns.count)}
                       href={`/trip/${records.mostHorns.tripId}`}
-                      band="#FFC043"
                     />
                   ) : null}
                   {records.longestDistance ? (
@@ -218,7 +220,6 @@ export default function StatsPage() {
                       label="Longest drive"
                       value={formatDistanceLong(records.longestDistance.m)}
                       href={`/trip/${records.longestDistance.tripId}`}
-                      band="#4EA8FF"
                     />
                   ) : null}
                 </div>
@@ -256,23 +257,21 @@ function RecordRow({
   label,
   value,
   href,
-  band,
+  accent = false,
 }: {
   label: string;
   value: string;
   href: string;
-  band: string;
+  accent?: boolean;
 }) {
   return (
     <Link
       href={href}
-      className="flex items-center justify-between gap-3 border-b border-hairline py-2.5 last:border-b-0"
+      className="flex items-center justify-between gap-3 border-b border-hairline py-3 last:border-b-0"
     >
       <span className="text-[14px] text-ink-muted">{label}</span>
       <span className="flex items-center gap-1.5">
-        <span className="num text-[15px]" style={{ color: band }}>
-          {value}
-        </span>
+        <span className={cn('num text-[15px]', accent ? 'text-brand' : 'text-ink')}>{value}</span>
         <ChevronRight size={14} className="text-ink-faint" />
       </span>
     </Link>

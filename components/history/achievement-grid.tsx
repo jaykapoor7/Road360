@@ -8,10 +8,10 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils/cn';
 
 const TIER_COLORS = {
-  bronze: '#FF8A3D',
-  silver: '#9A9AA5',
-  gold: '#FFC043',
-  platinum: '#4EA8FF',
+  bronze: '#C8814F',
+  silver: '#8B8B90',
+  gold: '#D0A35C',
+  platinum: '#6E8FBF',
 } as const;
 
 /**

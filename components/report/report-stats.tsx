@@ -25,7 +25,12 @@ import { staggerParent, fadeUp } from '@/components/motion/transitions';
 export function ReportStats({ stats }: { stats: TripStats }) {
   const distance = formatDistance(stats.distanceM);
 
-  const tiles = [
+  const tiles: {
+    label: string;
+    icon: React.ReactNode;
+    value: string;
+    footnote?: string;
+  }[] = [
     {
       label: 'Distance',
       icon: <Route size={13} />,
@@ -36,7 +41,6 @@ export function ReportStats({ stats }: { stats: TripStats }) {
       label: 'Horns',
       icon: <Megaphone size={13} />,
       value: String(stats.soundCounts.horn),
-      accent: '#FFC043',
       footnote: stats.avgSecondsBetweenHorns
         ? `one every ${formatSecondsPrecise(stats.avgSecondsBetweenHorns)}`
         : 'none',
@@ -45,7 +49,6 @@ export function ReportStats({ stats }: { stats: TripStats }) {
       label: 'Longest calm',
       icon: <Timer size={13} />,
       value: formatDurationCompact(stats.longestSilenceMs),
-      accent: '#00E08C',
     },
     {
       label: 'Avg noise',
@@ -57,13 +60,11 @@ export function ReportStats({ stats }: { stats: TripStats }) {
       label: 'Hard brakes',
       icon: <ShieldAlert size={13} />,
       value: String(stats.hardBrakes),
-      accent: '#FF5470',
     },
     {
       label: 'Rapid accel',
       icon: <Zap size={13} />,
       value: String(stats.rapidAccels),
-      accent: '#FF8A3D',
     },
     {
       label: 'Time stopped',
@@ -87,7 +88,7 @@ export function ReportStats({ stats }: { stats: TripStats }) {
     >
       {tiles.map((tile) => (
         <motion.div key={tile.label} variants={fadeUp}>
-          <StatTile label={tile.label} icon={tile.icon} accent={tile.accent} footnote={tile.footnote}>
+          <StatTile label={tile.label} icon={tile.icon} footnote={tile.footnote}>
             {tile.value}
           </StatTile>
         </motion.div>

@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import type { TripSummary } from '@/lib/domain/summary';
-import { fadeUp } from '@/components/motion/transitions';
+import { revealUp } from '@/components/motion/transitions';
 
 /**
  * The "AI summary". It is a deterministic template render, presented as prose:
@@ -11,7 +11,7 @@ import { fadeUp } from '@/components/motion/transitions';
  */
 export function SummaryNarrative({ summary }: { summary: TripSummary }) {
   return (
-    <motion.div variants={fadeUp} className="rounded-card glass p-4">
+    <motion.div variants={revealUp} className="rounded-card glass p-4">
       <div className="mb-3 flex items-center gap-2">
         <Sparkles size={13} className="text-brand" />
         <span className="eyebrow">Your drive, summarised</span>

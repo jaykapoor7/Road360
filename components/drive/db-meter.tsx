@@ -108,10 +108,10 @@ export function DbMeter({ height = 72 }: { height?: number }) {
 /** Quiet → loud across the score-band greens, ambers and reds. */
 function rampColor(norm: number, alpha: number): string {
   const stops: [number, [number, number, number]][] = [
-    [0, [0, 224, 140]],
-    [0.5, [255, 192, 67]],
-    [0.75, [255, 138, 61]],
-    [1, [255, 84, 112]],
+    [0, [52, 217, 160]],
+    [0.5, [208, 163, 92]],
+    [0.75, [200, 129, 79]],
+    [1, [205, 109, 109]],
   ];
 
   let lo = stops[0]!;

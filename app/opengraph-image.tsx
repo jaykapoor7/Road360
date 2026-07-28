@@ -38,7 +38,7 @@ export default function OpengraphImage() {
               width: 18,
               height: 18,
               borderRadius: 9,
-              background: '#00E08C',
+              background: '#34D9A0',
               marginRight: 16,
             }}
           />
@@ -87,10 +87,10 @@ export default function OpengraphImage() {
         {/* Band strip: the four score bands, in order. */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {[
-            { label: 'CHAOS', color: '#FF2D55' },
-            { label: 'STRESSFUL', color: '#FF8A3D' },
-            { label: 'NORMAL', color: '#4EA8FF' },
-            { label: 'EXCELLENT', color: '#00E08C' },
+            { label: 'CHAOS', color: '#CD6D6D' },
+            { label: 'STRESSFUL', color: '#D2A45E' },
+            { label: 'NORMAL', color: '#8590A4' },
+            { label: 'EXCELLENT', color: '#38D6A2' },
           ].map((band) => (
             <div
               key={band.label}

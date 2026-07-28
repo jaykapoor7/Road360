@@ -126,13 +126,15 @@ function EventMarkers({ markers }: { markers: EventMarker[] }) {
     layerRef.current = group;
 
     for (const marker of markers) {
-      const color = marker.kind === 'horn' ? '#FFC043' : '#FF5470';
-      const glyph = marker.kind === 'horn' ? '📣' : '🛑';
+      // A small ringed dot, colour-coded by kind — no emoji. Emoji markers
+      // render at the mercy of the platform font and never look like part of a
+      // designed map; a 9px dot always does.
+      const color = marker.kind === 'horn' ? '#D2A45E' : '#CD6D6D';
       const icon = L.divIcon({
         className: '',
-        html: `<div style="display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:${color}22;border:1.5px solid ${color};font-size:11px">${glyph}</div>`,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11],
+        html: `<div style="width:11px;height:11px;border-radius:50%;background:${color};box-shadow:0 0 0 3px ${color}33,0 0 0 4px rgba(0,0,0,0.4)"></div>`,
+        iconSize: [11, 11],
+        iconAnchor: [5.5, 5.5],
       });
       L.marker([marker.lat, marker.lon], { icon, interactive: false }).addTo(group);
     }
@@ -233,7 +235,7 @@ export default function RouteMap({
         {polyline && polyline.length > 1 ? (
           <Polyline
             positions={polyline}
-            pathOptions={{ color: '#00E08C', weight: 4, opacity: 0.9, lineCap: 'round' }}
+            pathOptions={{ color: '#34D9A0', weight: 4, opacity: 0.9, lineCap: 'round' }}
           />
         ) : null}
 

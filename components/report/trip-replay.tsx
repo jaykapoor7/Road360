@@ -77,8 +77,8 @@ export function TripReplay({
       {/* As-of stats. */}
       <div className="mb-3 grid grid-cols-4 gap-2">
         <ReplayStat icon={<Route size={13} />} value={`${distance.value}${distance.unit}`} label="dist" />
-        <ReplayStat icon={<Megaphone size={13} />} value={String(frame.stats.hornCount)} label="horns" accent="#fbbf24" />
-        <ReplayStat icon={<ShieldAlert size={13} />} value={String(frame.stats.hardBrakes)} label="brakes" accent="#fb7185" />
+        <ReplayStat icon={<Megaphone size={13} />} value={String(frame.stats.hornCount)} label="horns" />
+        <ReplayStat icon={<ShieldAlert size={13} />} value={String(frame.stats.hardBrakes)} label="brakes" />
         <ReplayStat icon={<Volume2 size={13} />} value={String(Math.round(frame.stats.currentDb))} label="dB" />
       </div>
 
