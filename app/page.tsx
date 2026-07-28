@@ -1,15 +1,16 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, Lock, MapPin, Sparkles, Volume2 } from 'lucide-react';
 import { AppShell } from '@/components/layout/app-shell';
 import { TabBar } from '@/components/layout/tab-bar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProgressRing } from '@/components/ui/progress-ring';
 import { MetricRow, SectionLabel } from '@/components/ui/metric-row';
 import { LastTripCard } from '@/components/home/last-trip-card';
+import { InstallPrompt } from '@/components/common/install-prompt';
 import { useTrips, useLifetime } from '@/hooks/use-trips';
 import { bandDefinition } from '@/lib/score/labels';
 import { startOfWeek } from '@/lib/utils/time';
@@ -25,6 +26,10 @@ export default function HomePage() {
   const { trips, loading } = useTrips();
   const { lifetime } = useLifetime();
   const lastTrip = trips[0] ?? null;
+
+  // Null until mounted — see the header comment below.
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => setNow(Date.now()), []);
 
   // Computed from the list already in memory rather than a second IndexedDB
   // read — the home screen should never wait on two round-trips to paint.
@@ -51,11 +56,25 @@ export default function HomePage() {
           animate="show"
           className="flex flex-col gap-7"
         >
-          <motion.header variants={fadeUp}>
-            <p className="eyebrow">{greetingFor()}</p>
-            <h1 className="mt-1.5 text-[22px] leading-none font-bold tracking-[-0.02em] text-ink">
-              {formatDateLong(Date.now())}
-            </h1>
+          {/*
+            The greeting and date are rendered only after mount, and the header
+            keeps its height in the meantime.
+
+            This route is statically prerendered, so anything derived from the
+            clock is frozen at build time and computed in the build machine's
+            timezone — the shipped HTML literally said "Late night" and carried
+            the date the bundle was compiled. Deferring to the client is the
+            only way the first paint is not simply wrong.
+          */}
+          <motion.header variants={fadeUp} className="min-h-[3.25rem]">
+            {now !== null ? (
+              <>
+                <p className="eyebrow">{greetingFor(now)}</p>
+                <h1 className="mt-1.5 text-[22px] leading-none font-bold tracking-[-0.02em] text-ink">
+                  {formatDateLong(now)}
+                </h1>
+              </>
+            ) : null}
           </motion.header>
 
           {/* Hero — the last drive's score, or an invitation to record one. */}
@@ -96,7 +115,7 @@ export default function HomePage() {
                 </div>
               </Link>
             ) : (
-              <div className="flex flex-col items-center py-6 text-center">
+              <div className="flex flex-col items-center text-center">
                 <ProgressRing
                   value={0}
                   from="#4EA8FF"
@@ -107,7 +126,7 @@ export default function HomePage() {
                 >
                   <div className="flex flex-col items-center px-10">
                     <span className="eyebrow">Road360 Score</span>
-                    <span className="num mt-1 text-[68px] leading-none text-ink-faint">--</span>
+                    <span className="num mt-1 text-[68px] leading-none text-ink-faint">—</span>
                     <span className="mt-1.5 text-[13px] text-ink-muted">No drives yet</span>
                   </div>
                 </ProgressRing>
@@ -130,10 +149,45 @@ export default function HomePage() {
                 className="flex h-11 items-center justify-center gap-2 rounded-pill border border-hairline bg-surface text-[14px] font-semibold text-ink-muted transition-transform active:scale-[0.97]"
               >
                 <Sparkles size={15} className="text-brand" />
-                Try a demo drive
+                Try a demo drive — no car needed
               </Link>
             ) : null}
           </motion.div>
+
+          {/*
+            First run only. Someone arriving from a link is about to be asked
+            for a microphone and their location by a site they have never heard
+            of; saying what each one is for, and that nothing leaves the phone,
+            belongs before that prompt rather than buried in Settings.
+          */}
+          {!lastTrip && !loading ? (
+            <motion.div variants={fadeUp}>
+              <SectionLabel>What this does</SectionLabel>
+              <div className="rounded-card glass px-4 py-1">
+                <ExplainerRow
+                  icon={<Volume2 size={15} />}
+                  title="Listens for horns and noise"
+                  detail="The microphone measures loudness and picks out horns. Audio is analysed on the fly and never recorded or stored."
+                />
+                <ExplainerRow
+                  icon={<Activity size={15} />}
+                  title="Feels hard braking"
+                  detail="Motion sensors catch hard stops and sharp acceleration."
+                />
+                <ExplainerRow
+                  icon={<MapPin size={15} />}
+                  title="Maps the route"
+                  detail="Location draws your route and works out distance and stop-and-go."
+                />
+                <ExplainerRow
+                  icon={<Lock size={15} />}
+                  title="Stays on your phone"
+                  detail="No account, no upload, no tracking. Everything is stored in this browser and you can delete it all in Settings."
+                  last
+                />
+              </div>
+            </motion.div>
+          ) : null}
 
           {lastTrip ? (
             <motion.div variants={fadeUp}>
@@ -175,8 +229,31 @@ export default function HomePage() {
           ) : null}
         </motion.div>
       </AppShell>
+      <InstallPrompt tripCount={trips.length} />
       <TabBar />
     </>
+  );
+}
+
+function ExplainerRow({
+  icon,
+  title,
+  detail,
+  last = false,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  detail: string;
+  last?: boolean;
+}) {
+  return (
+    <div className={`flex gap-3 py-3.5 ${last ? '' : 'border-b border-hairline'}`}>
+      <span className="mt-0.5 shrink-0 text-ink-faint">{icon}</span>
+      <div className="min-w-0">
+        <div className="text-[14px] font-semibold text-ink">{title}</div>
+        <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">{detail}</p>
+      </div>
+    </div>
   );
 }
 

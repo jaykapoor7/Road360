@@ -213,6 +213,38 @@ class LocalTripRepository implements TripRepository {
     return records.map(toListItem);
   }
 
+  /**
+   * Marks trips left in `recording` by a session that never finished — a closed
+   * tab, a killed browser, a flat battery — as `abandoned`.
+   *
+   * Without this they stay `recording` forever and surface in history as a row
+   * with no score, no distance and no report behind it. `olderThanMs` guards
+   * against sweeping a drive that is genuinely still in progress: the recorder
+   * checkpoints every 30 s, so anything untouched for minutes is not running.
+   *
+   * Updates go through `put` directly rather than `update()` — an abandoned
+   * trip is a local cleanup, not a change worth pushing to another device.
+   */
+  async sweepAbandoned(olderThanMs: number): Promise<TripRecord[]> {
+    const db = await getDb();
+    const cutoff = Date.now() - olderThanMs;
+    const swept: TripRecord[] = [];
+
+    const tx = db.transaction('trips', 'readwrite');
+    for (const trip of await tx.store.getAll()) {
+      const active = trip.status === 'recording' || trip.status === 'paused';
+      if (!active || trip.deleted === 1) continue;
+      // updatedAt moves on every checkpoint, so it is the liveness signal.
+      if (Math.max(trip.updatedAt, trip.startedAt) > cutoff) continue;
+
+      const abandoned: TripRecord = { ...trip, status: 'abandoned', updatedAt: Date.now() };
+      await tx.store.put(abandoned);
+      swept.push(abandoned);
+    }
+    await tx.done;
+    return swept;
+  }
+
   async countBy(kind: 'week' | 'month'): Promise<Record<string, number>> {
     const db = await getDb();
     const all = await db.getAll('trips');

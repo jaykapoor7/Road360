@@ -72,6 +72,28 @@ describe('trip lifecycle', () => {
     expect(await repo.trips.list({ includeSimulated: false })).toHaveLength(1);
   });
 
+  it('sweeps a drive whose session died into abandoned', async () => {
+    const stale = await makeTrip();
+    // Backdate it past the liveness window, as a killed browser would leave it.
+    // putRaw, because update() stamps updatedAt itself and would keep it fresh.
+    const record = (await repo.trips.getRaw(stale))!;
+    const longAgo = Date.now() - 600_000;
+    await repo.trips.putRaw({ ...record, startedAt: longAgo, updatedAt: longAgo });
+
+    const swept = await repo.trips.sweepAbandoned(120_000);
+
+    expect(swept).toHaveLength(1);
+    expect((await repo.trips.get(stale))!.status).toBe('abandoned');
+    // And it no longer pollutes the history list.
+    expect(await repo.trips.list({ status: 'completed' })).toHaveLength(0);
+  });
+
+  it('leaves a drive that is genuinely still recording alone', async () => {
+    const live = await makeTrip();
+    expect(await repo.trips.sweepAbandoned(120_000)).toHaveLength(0);
+    expect((await repo.trips.get(live))!.status).toBe('recording');
+  });
+
   it('lists newest first', async () => {
     const older = newTripId();
     const newer = newTripId();

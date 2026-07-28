@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Volume2, Megaphone, Route, Clock, Flame, ChevronRight } from 'lucide-react';
 import { AppShell, PageHeader } from '@/components/layout/app-shell';
@@ -75,7 +75,10 @@ export default function StatsPage() {
     return { distance, horns, duration, avgScore };
   }, [inPeriod]);
 
-  const currentMonth = monthKeyLabel(new Date());
+  // Deferred to the client for the same reason as the home header: this route
+  // is prerendered, so a build-time month label ships frozen to every visitor.
+  const [currentMonth, setCurrentMonth] = useState('');
+  useEffect(() => setCurrentMonth(monthKeyLabel(new Date())), []);
 
   return (
     <>
@@ -105,7 +108,7 @@ export default function StatsPage() {
                 />
                 <div className="min-w-0">
                   <div className="eyebrow">Road360 Wrapped</div>
-                  <div className="mt-1 text-[17px] font-bold tracking-[-0.01em] text-ink">
+                  <div className="mt-1 min-h-[1.375rem] text-[17px] font-bold tracking-[-0.01em] text-ink">
                     {currentMonth}
                   </div>
                   <div className="mt-0.5 text-[12px] text-ink-muted">Your month on the road</div>

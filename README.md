@@ -176,8 +176,25 @@ Every record carries sync metadata (revision, dirty, tombstone, deviceId) and **
 enqueues an outbox op** — from the very first trip, even though nothing drains it. Adding cloud sync
 becomes draining a queue rather than backfilling a year of data.
 
-`lib/sync/remote-repository.stub.ts` implements the same interface and throws. It exists to keep
-IndexedDB specifics from leaking into the contract.
+No `IDBKeyRange`, cursor or other IndexedDB shape appears in any repository signature, which is what
+lets `SyncTransport` sit behind the same contract without the storage layer leaking into it.
+
+A drive whose session dies mid-recording — closed tab, killed browser, flat battery — is swept to
+`abandoned` on next launch rather than left in `recording` forever, and the lists query completed
+trips only. Otherwise it surfaces as a permanent zero-score row leading to an empty report.
+
+### Keeping the data alive
+
+Everything is local, which makes eviction the main way a user loses their history. iOS clears
+script-writable storage for sites that have not been opened in about a week unless they are on the
+home screen, so `navigator.storage.persist()` is requested as soon as there is a drive worth
+keeping, and the install prompt is pitched as "keep your drives" rather than "install our app" —
+because that is literally what it does. It appears after a completed drive, not on first paint,
+where it would be one more thing between a stranger and the app.
+
+Anything derived from the clock is deferred to the client. These routes are statically prerendered,
+so `Date.now()` in a component body is evaluated at *build* time in the build machine's timezone:
+the shipped HTML said "Late night" and carried the date the bundle was compiled, for every visitor.
 
 ### Privacy
 

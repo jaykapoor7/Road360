@@ -24,6 +24,7 @@ export interface TripQuery {
   includeSimulated?: boolean;
 }
 
+
 export interface NewTrip {
   id: TripId;
   startedAt: Millis;
@@ -41,6 +42,7 @@ export interface TripRepository {
   list(query?: TripQuery): Promise<TripListItem[]>;
   listRecords(query?: TripQuery): Promise<TripRecord[]>;
   countBy(kind: 'week' | 'month'): Promise<Record<string, number>>;
+  sweepAbandoned(olderThanMs: number): Promise<TripRecord[]>;
 
   appendChunk(chunk: TripSampleChunk): Promise<void>;
   readChunks(id: TripId): Promise<TripSampleChunk[]>;

@@ -75,11 +75,7 @@ export function PermissionWizard({
               key={s.kind}
               className={cn(
                 'h-1 w-8 rounded-full transition-colors',
-                i < index
-                  ? 'bg-mint'
-                  : i === index
-                    ? 'bg-brand-bright'
-                    : 'bg-white/12',
+                i < index ? 'bg-mint' : i === index ? 'bg-brand' : 'bg-white/12',
               )}
             />
           ))}
@@ -104,28 +100,35 @@ export function PermissionWizard({
           className="flex flex-col items-center gap-4 py-4 text-center"
         >
           <div
-            className="aura relative grid size-20 place-items-center rounded-3xl"
-            style={{ ['--aura-color' as string]: '#6366f1' }}
+            className="aura relative grid size-16 place-items-center rounded-2xl border border-hairline bg-surface-2"
+            style={{ ['--aura-color' as string]: '#00e08c', ['--aura-opacity' as string]: '0.22' }}
           >
-            <div className="glass grid size-20 place-items-center rounded-3xl">
-              <StepIcon size={32} className="text-brand-bright" />
-            </div>
+            <StepIcon size={28} className="text-brand" />
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-ink">Allow {step.title.toLowerCase()}</h2>
-            <p className="mx-auto mt-2 max-w-xs text-sm text-ink-muted">
+            <h2 className="text-[19px] font-bold tracking-[-0.01em] text-ink">
+              Allow {step.title.toLowerCase()}
+            </h2>
+            <p className="mx-auto mt-2 max-w-[18rem] text-[13px] leading-relaxed text-ink-muted">
               {SENSOR_PURPOSE[step.kind]}
             </p>
           </div>
 
           {state === 'granted' ? (
-            <div className="flex items-center gap-1.5 text-sm font-semibold text-mint">
-              <Check size={16} /> Granted
+            <div className="flex items-center gap-1.5 text-[13px] font-semibold text-mint">
+              <Check size={15} /> Granted
             </div>
           ) : state === 'denied' ? (
-            <div className="text-sm font-semibold text-amber">
-              Skipped — you can enable it later in Settings.
+            /*
+              A denial cannot be re-prompted from the page — once the browser has
+              recorded it, calling the API again returns immediately. Saying
+              "allow it in Settings" without saying *whose* settings sends people
+              to the app's own Settings screen, which cannot grant it either.
+            */
+            <div className="max-w-[18rem] text-[12px] leading-relaxed text-amber">
+              Blocked. The drive will still record without it — the report says which signals were
+              missing. To turn it back on, use your browser&rsquo;s site permissions for this page.
             </div>
           ) : null}
         </motion.div>
