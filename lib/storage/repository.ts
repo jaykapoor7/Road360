@@ -43,6 +43,8 @@ export interface TripRepository {
   listRecords(query?: TripQuery): Promise<TripRecord[]>;
   countBy(kind: 'week' | 'month'): Promise<Record<string, number>>;
   sweepAbandoned(olderThanMs: number): Promise<TripRecord[]>;
+  /** Hard-deletes demo drives. Returns how many were removed. */
+  purgeSimulated(): Promise<number>;
 
   appendChunk(chunk: TripSampleChunk): Promise<void>;
   readChunks(id: TripId): Promise<TripSampleChunk[]>;

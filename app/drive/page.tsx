@@ -13,6 +13,7 @@ import { DriveControls } from '@/components/drive/drive-controls';
 import { SensorStatusRow } from '@/components/drive/sensor-status-row';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useDriveSession } from '@/hooks/use-drive-session';
+import { useSettings } from '@/hooks/use-settings';
 import { isScenarioId, type ScenarioId } from '@/lib/sensors/mock/scenarios';
 import { fadeUp, staggerParent } from '@/components/motion/transitions';
 
@@ -23,6 +24,7 @@ function DriveScreen() {
   const params = useSearchParams();
   const permissions = usePermissions();
   const drive = useDriveSession();
+  const { flags } = useSettings();
 
   const [phase, setPhase] = useState<Phase>('setup');
   const [showWizard, setShowWizard] = useState(false);
@@ -38,9 +40,11 @@ function DriveScreen() {
       if (startedRef.current) return;
       startedRef.current = true;
       setPhase('live');
-      await drive.start({ simulated, scenario });
+      // A demo always runs the mic — it is synthesised audio, not the earpiece
+      // problem silent mode exists for.
+      await drive.start({ simulated, scenario, silent: !simulated && flags.silentMode });
     },
-    [drive, scenario],
+    [drive, scenario, flags.silentMode],
   );
 
   // A demo drive needs no permissions, so it starts straight away.
@@ -100,6 +104,7 @@ function DriveScreen() {
           <div className="rounded-card glass p-5">
             <PermissionWizard
               permissions={permissions}
+              skipAudio={flags.silentMode}
               onComplete={() => void beginDrive(false)}
               onCancel={() => setShowWizard(false)}
             />

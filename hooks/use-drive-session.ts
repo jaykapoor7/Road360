@@ -13,7 +13,7 @@ import { haptic } from '@/lib/platform/haptics';
 import type { ScenarioId } from '@/lib/sensors/mock/scenarios';
 import type { TripId } from '@/lib/domain/schema';
 import type { AchievementDef } from '@/lib/domain/achievements';
-import type { WebAudioCaptureSource } from '@/lib/sensors/web/audio-capture';
+import { WebAudioCaptureSource } from '@/lib/sensors/web/audio-capture';
 
 export type DriveState = 'idle' | 'starting' | 'recording' | 'paused' | 'finishing' | 'error';
 
@@ -21,6 +21,8 @@ export interface StartOptions {
   simulated: boolean;
   scenario?: ScenarioId;
   detectorId?: string;
+  /** Record without the microphone. Demo drives ignore this. */
+  silent?: boolean;
 }
 
 export interface FinishResult {
@@ -82,11 +84,13 @@ export function useDriveSession() {
         mode: options.simulated ? 'simulated' : 'live',
         scenario: options.scenario,
         clock,
+        silent: options.silent,
       });
-      // The web audio source exposes calibration state the report needs; the
-      // simulated source does not, and that's fine — the cast is guarded.
+      // The web audio source exposes calibration state the report needs. In
+      // silent mode (or a demo) there is no such source, so this stays null and
+      // the report simply reports no audio coverage.
       audioRef.current =
-        suite.mode === 'live' ? (suite.audio as WebAudioCaptureSource) : null;
+        suite.audio instanceof WebAudioCaptureSource ? suite.audio : null;
 
       const detector = await createSoundEventDetector(options.detectorId ?? 'heuristic-v1');
 

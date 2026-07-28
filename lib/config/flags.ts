@@ -13,6 +13,12 @@ export interface Flags {
   contributeAnonymousData: boolean;
   /** Feed simulated sensors instead of real ones. */
   demoMode: boolean;
+  /**
+   * Disable the microphone entirely. On iOS an active mic reroutes audio to the
+   * earpiece and ducks the user's music; with this on the drive records without
+   * it and the score renormalises over the remaining sensors.
+   */
+  silentMode: boolean;
 }
 
 export const DEFAULT_FLAGS: Flags = {
@@ -32,6 +38,7 @@ export const DEFAULT_FLAGS: Flags = {
   syncEnabled: false,
   contributeAnonymousData: false,
   demoMode: false,
+  silentMode: false,
 };
 
 export const SETTINGS_KEYS = {

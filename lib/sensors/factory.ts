@@ -1,6 +1,7 @@
 import type { SensorSuite, SensorMode } from './types';
 import { WebGeolocationSource } from './web/geolocation-source';
 import { WebAudioCaptureSource } from './web/audio-capture';
+import { SilentAudioSource } from './web/silent-audio-source';
 import { WebMotionSource } from './web/motion-source';
 import { createSimulatedSuite, type SimulationClock } from './mock/simulated-sources';
 import type { ScenarioId } from './mock/scenarios';
@@ -10,6 +11,8 @@ export interface SuiteOptions {
   scenario?: ScenarioId;
   clock?: SimulationClock;
   seed?: number;
+  /** Silent mode: build the live suite with the microphone left off. */
+  silent?: boolean;
 }
 
 /**
@@ -34,7 +37,7 @@ export function createSensorSuite(options: SuiteOptions): SensorSuite {
   return {
     mode: 'live',
     gps: new WebGeolocationSource(),
-    audio: new WebAudioCaptureSource(),
+    audio: options.silent ? new SilentAudioSource() : new WebAudioCaptureSource(),
     motion: new WebMotionSource(),
   };
 }

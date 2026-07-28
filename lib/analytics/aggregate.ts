@@ -16,17 +16,15 @@ export const aggregateKey = (kind: PeriodKind, periodKey?: string): string =>
   kind === 'lifetime' ? 'lifetime' : `${kind}:${periodKey}`;
 
 /**
- * Trips that count toward statistics: completed, not deleted, scored.
+ * Trips that count toward statistics: completed, not deleted, scored, real.
  *
- * Demo drives count. They are real recordings — synthesised waveforms run
- * through the real FFT, the real detector and the real scorer — and excluding
- * them meant a new user who tried the demo saw an app whose stats, streaks and
- * Wrapped were all empty, which reads as broken rather than as scrupulous.
- * They are tagged `simulated` and the UI labels them wherever they appear, so
- * the distinction survives without hiding them.
+ * Demo drives are excluded. They exist to show the app working end to end, not
+ * to become part of someone's history — a synthesised commute has no business
+ * skewing a real average, a real streak or a real Wrapped, and seeing one sit
+ * in the list next to genuine drives is worse than seeing an empty app.
  */
 export const isCountable = (trip: TripRecord): boolean =>
-  trip.deleted === 0 && trip.status === 'completed' && trip.stats !== null;
+  trip.deleted === 0 && trip.status === 'completed' && !trip.simulated && trip.stats !== null;
 
 export interface BuildAggregateInput {
   key: string;

@@ -10,7 +10,7 @@ import { SectionLabel } from '@/components/ui/metric-row';
 import { createSensorSuite } from '@/lib/sensors/factory';
 import type { WebAudioCaptureSource } from '@/lib/sensors/web/audio-capture';
 import { WebMotionSource } from '@/lib/sensors/web/motion-source';
-import type { SensorSuite } from '@/lib/sensors/types';
+import type { MotionReading, SensorSuite } from '@/lib/sensors/types';
 import { cn } from '@/lib/utils/cn';
 
 type Verdict = 'idle' | 'waiting' | 'ok' | 'failed';
@@ -151,7 +151,17 @@ export default function SensorCheckPage() {
             : { verdict: 'waiting', lines: [], note: 'No frames yet…' },
       );
 
-      const move = current.motion.peek();
+      // WebMotionSource only fills its reading inside drain() — that is where a
+      // second of raw events is collapsed into acceleration and jerk. peek()
+      // alone would always read null and report a working sensor as failed,
+      // which is exactly what it did.
+      const motionSource = current.motion as unknown as {
+        drain?: (t: number) => MotionReading | null;
+      };
+      const move =
+        typeof motionSource.drain === 'function'
+          ? motionSource.drain(performance.now())
+          : current.motion.peek();
       setMotion((prev) =>
         prev.verdict === 'failed'
           ? prev

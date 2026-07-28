@@ -85,12 +85,11 @@ describe('finalizeTrip', () => {
     const stored = await repo.trips.get(session.tripId);
     expect(stored?.status).toBe('completed');
 
-    // A demo drive counts like any other completed drive. It is a real
-    // recording of synthesised audio, and hiding it from lifetime left a
-    // first-time user staring at an app with nothing in it.
+    // A demo drive is excluded from lifetime and unlocks nothing — its report
+    // renders, but a synthesised commute never joins the user's real history.
+    expect(unlocked).toHaveLength(0);
     const lifetime = await repo.aggregates.lifetime();
-    expect(lifetime.tripCount).toBe(1);
-    expect(unlocked.map((a) => a.id)).toContain('first-drive');
+    expect(lifetime.tripCount).toBe(0);
   });
 
   it('unlocks achievements and counts toward lifetime for a real trip', async () => {

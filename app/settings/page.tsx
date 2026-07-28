@@ -79,10 +79,9 @@ export default function SettingsPage() {
                 <Toggle
                   icon={<MicOff size={16} />}
                   label="Silent mode"
-                  description="Disable the microphone entirely. On iOS an active mic reroutes audio to the earpiece and ducks your music; the score renormalises without it."
-                  checked={false}
-                  onChange={() => {}}
-                  disabled
+                  description="Record without the microphone. On iOS an active mic reroutes audio to the earpiece and ducks your music; the score renormalises over the remaining sensors."
+                  checked={flags.silentMode}
+                  onChange={(v) => update({ silentMode: v })}
                 />
               </div>
             </Card>

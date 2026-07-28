@@ -32,10 +32,13 @@ export function PermissionWizard({
   permissions,
   onComplete,
   onCancel,
+  skipAudio = false,
 }: {
   permissions: ReturnType<typeof usePermissions>;
   onComplete: () => void;
   onCancel: () => void;
+  /** Silent mode — don't ask for the microphone the drive won't use. */
+  skipAudio?: boolean;
 }) {
   const { states, requestMotion, requestMicrophone, requestLocation } = permissions;
   const [index, setIndex] = useState(0);
@@ -43,7 +46,9 @@ export function PermissionWizard({
 
   const steps: Step[] = [
     { kind: 'motion', title: 'Motion', icon: Activity, request: requestMotion },
-    { kind: 'audio', title: 'Microphone', icon: Mic, request: requestMicrophone },
+    ...(skipAudio
+      ? []
+      : [{ kind: 'audio' as const, title: 'Microphone', icon: Mic, request: requestMicrophone }]),
     { kind: 'gps', title: 'Location', icon: MapPin, request: requestLocation },
   ];
 

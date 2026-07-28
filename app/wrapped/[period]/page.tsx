@@ -36,7 +36,7 @@ export default function WrappedPage({ params }: { params: Promise<{ period: stri
 
       const all: TripRecord[] = await getRepository().trips.listRecords({
         limit: 100_000,
-        includeSimulated: true,
+        includeSimulated: false,
       });
       const inPeriod = all.filter((t) => t.startedAt >= start && t.startedAt <= end);
 

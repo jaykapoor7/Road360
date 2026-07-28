@@ -115,6 +115,13 @@ export async function finalizeTrip(
   // Only these keys change, so this stays cheap even with a long history.
   await rebuildAggregates(repo, trip);
 
+  // A demo drive is not part of the user's history: it unlocks nothing and its
+  // aggregates already excluded it above. The report still renders — the trip
+  // is in storage — it simply never joins the lists or the lifetime totals.
+  if (trip.simulated) {
+    return { trip, unlocked: [] };
+  }
+
   // Achievements are judged against the lifetime totals that now include this trip.
   const lifetime = await repo.aggregates.lifetime();
   const alreadyUnlocked = new Set((await repo.achievements.all()).map((a) => a.id));

@@ -11,32 +11,33 @@ import type { TripId } from '@/lib/domain/schema';
 /**
  * The trip list for the history screen. Reads projections only, never samples.
  *
- * Only completed drives are listed. A trip whose session died mid-recording —
- * closed tab, killed browser, flat battery — has no stats and no score, so it
- * would otherwise render as a permanent 0-score row leading to an empty report.
- * Those are swept to `abandoned` first so the state is resolved rather than
- * merely hidden.
+ * Only real, completed drives are listed. Demo drives are purged on mount — a
+ * synthesised commute is never part of history — and a trip whose session died
+ * mid-recording (closed tab, killed browser, flat battery) has no stats and no
+ * score, so it is swept to `abandoned` rather than left as a permanent
+ * zero-score row leading to an empty report.
  */
-export function useTrips(includeSimulated = true) {
+export function useTrips() {
   const [trips, setTrips] = useState<TripListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
     const list = await getRepository().trips.list({
       limit: 200,
-      includeSimulated,
+      includeSimulated: false,
       status: 'completed',
     });
     setTrips(list);
     setLoading(false);
-  }, [includeSimulated]);
+  }, []);
 
   useEffect(() => {
     let active = true;
     void (async () => {
       const repo = getRepository();
+      await repo.trips.purgeSimulated();
       await repo.trips.sweepAbandoned(RECOVERY_THRESHOLD_MS);
-      const list = await repo.trips.list({ limit: 200, includeSimulated, status: 'completed' });
+      const list = await repo.trips.list({ limit: 200, includeSimulated: false, status: 'completed' });
       if (active) {
         setTrips(list);
         setLoading(false);
@@ -45,7 +46,7 @@ export function useTrips(includeSimulated = true) {
     return () => {
       active = false;
     };
-  }, [includeSimulated]);
+  }, []);
 
   const remove = useCallback(
     async (id: TripId) => {

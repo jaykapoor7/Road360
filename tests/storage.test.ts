@@ -94,6 +94,15 @@ describe('trip lifecycle', () => {
     expect((await repo.trips.get(live))!.status).toBe('recording');
   });
 
+  it('hard-purges demo drives and keeps real ones', async () => {
+    const real = await makeTrip({ simulated: false });
+    const demo = await makeTrip({ simulated: true });
+
+    expect(await repo.trips.purgeSimulated()).toBe(1);
+    expect(await repo.trips.get(demo)).toBeNull();
+    expect(await repo.trips.get(real)).not.toBeNull();
+  });
+
   it('lists newest first', async () => {
     const older = newTripId();
     const newer = newTripId();

@@ -245,6 +245,35 @@ class LocalTripRepository implements TripRepository {
     return swept;
   }
 
+  /**
+   * Hard-deletes demo drives and their bulk data.
+   *
+   * A demo trip is saved so its report can render, but it never belongs to the
+   * user's history and never syncs, so it is removed outright rather than
+   * tombstoned. Called on app launch, which keeps repeated demos from silently
+   * filling storage and guarantees a clean slate for anyone who tried one.
+   * Returns how many were removed.
+   */
+  async purgeSimulated(): Promise<number> {
+    const db = await getDb();
+    const all = await db.getAll('trips');
+    const ids = all.filter((t) => t.simulated).map((t) => t.id);
+    if (ids.length === 0) return 0;
+
+    const tx = db.transaction(['trips', 'tripChunks', 'tripEvents'], 'readwrite');
+    for (const id of ids) {
+      await tx.objectStore('trips').delete(id);
+      const chunkKeys = await tx.objectStore('tripChunks').index('by-tripId').getAllKeys(id);
+      const eventKeys = await tx.objectStore('tripEvents').index('by-tripId').getAllKeys(id);
+      await Promise.all([
+        ...chunkKeys.map((k) => tx.objectStore('tripChunks').delete(k)),
+        ...eventKeys.map((k) => tx.objectStore('tripEvents').delete(k)),
+      ]);
+    }
+    await tx.done;
+    return ids.length;
+  }
+
   async countBy(kind: 'week' | 'month'): Promise<Record<string, number>> {
     const db = await getDb();
     const all = await db.getAll('trips');
@@ -368,7 +397,7 @@ class LocalAggregateRepository implements AggregateRepository {
   private async excellentStreak(): Promise<number> {
     const db = await getDb();
     const trips = (await db.getAllFromIndex('trips', 'by-startedAt'))
-      .filter((t) => t.deleted === 0 && t.status === 'completed')
+      .filter((t) => t.deleted === 0 && t.status === 'completed' && !t.simulated)
       .sort((a, b) => b.startedAt - a.startedAt);
 
     let streak = 0;
@@ -382,7 +411,7 @@ class LocalAggregateRepository implements AggregateRepository {
   async records(): Promise<PersonalRecords> {
     const db = await getDb();
     const trips = (await db.getAll('trips')).filter(
-      (t) => t.deleted === 0 && t.status === 'completed' && t.stats && t.score,
+      (t) => t.deleted === 0 && t.status === 'completed' && !t.simulated && t.stats && t.score,
     );
     if (trips.length === 0) return EMPTY_RECORDS;
 

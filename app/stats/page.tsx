@@ -37,10 +37,8 @@ const PERIOD_MS: Record<Period, number> = {
 
 export default function StatsPage() {
   const [period, setPeriod] = useState<Period>('week');
-  // Demo drives are included, matching the lifetime aggregate below. Excluding
-  // them here while the lifetime block counted them made the page contradict
-  // itself: "0 drives this week" directly above a lifetime distance.
-  const { trips } = useTrips(true);
+  // Real drives only, matching the lifetime aggregate below.
+  const { trips } = useTrips();
   const { lifetime, records } = useLifetime();
 
   const inPeriod = useMemo(() => {
