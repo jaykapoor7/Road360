@@ -1,17 +1,25 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Rectangle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { LatLngBoundsExpression } from 'leaflet';
 import { INTENSITY_COLORS, type IntensityRun, type EventMarker } from '@/lib/geo/route-segments';
+
+/** A heat cell drawn as a translucent rectangle over its geohash bounds. */
+export interface HeatRect {
+  bounds: [[number, number], [number, number]];
+  color: string;
+  intensity: number;
+}
 
 export interface RouteMapProps {
   /** Full route as [lat, lon] pairs, or intensity-coloured runs. */
   runs?: IntensityRun[];
   polyline?: [number, number][];
   markers?: EventMarker[];
+  heat?: HeatRect[];
   bounds?: [[number, number], [number, number]] | null;
   /** A moving marker for live drives and replay. */
   cursor?: { lat: number; lon: number; heading?: number } | null;
@@ -105,6 +113,7 @@ export default function RouteMap({
   runs,
   polyline,
   markers = [],
+  heat,
   bounds,
   cursor,
   interactive = true,
@@ -138,6 +147,22 @@ export default function RouteMap({
         style={{ width: '100%', height: '100%' }}
       >
         <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abcd" maxZoom={20} />
+
+        {heat?.map((cell, i) => (
+          <Rectangle
+            key={`heat-${i}`}
+            bounds={cell.bounds}
+            pathOptions={{
+              color: cell.color,
+              weight: 0.5,
+              // Scaled with intensity so dense areas read as hot without the
+              // whole map turning opaque.
+              fillOpacity: 0.18 + cell.intensity * 0.45,
+              fillColor: cell.color,
+              opacity: 0.5,
+            }}
+          />
+        ))}
 
         {runs?.map((run, i) => (
           <Polyline

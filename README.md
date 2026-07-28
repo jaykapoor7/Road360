@@ -161,6 +161,61 @@ a trace (so it never reveals home or work even at cell resolution), snaps to ~15
 replaces timestamps with hour-of-week, drops cells with fewer than 3 samples, and carries no device
 or trip identifier.
 
+One visible consequence, worth knowing rather than treating as a bug: a drive shorter than ~500 m
+contributes **nothing**, because both end-trims consume it. Short trips are invisible to the
+community map by construction.
+
+### Cloud sync
+
+The engine is real and fully tested; only the server is missing. `SyncTransport` is the entire
+network boundary, so pointing at a backend is an implementation of four methods.
+
+Push happens before pull, so a conflict is detected while both versions are still in hand. Acks are
+per-key, so a partially accepted batch doesn't re-send its accepted half. A record edited *during* a
+push stays dirty and goes out again rather than being marked synced on a stale revision. Conflicts
+resolve last-write-wins on `(updatedAt, revision, deviceId)` — the device tiebreak means every
+device independently reaches the same answer — and a delete beats a concurrent edit, because
+resurrecting a trip the user deleted is worse than losing an edit to it.
+
+Two transports ship: `HttpTransport` against the REST shape documented in that file, and
+`MemoryTransport`, an in-memory server that the tests drive two simulated devices against. With no
+`NEXT_PUBLIC_SYNC_URL` set the app uses the in-memory one, so push, pull and conflict resolution are
+demonstrable today without pretending a backend exists.
+
+Pulled records are written through `putRaw`/`appendEventsRaw`, which deliberately skip the outbox —
+routing them through the normal write path would queue them straight back to the server forever.
+
+### Community heatmaps
+
+`lib/community/` folds anonymised cells into noise, braking, horn and chaos heatmaps, per-road
+scores and area rankings. Folding is weighted by exposure, not by visit count: a cell built from 400
+seconds of driving shouldn't be outvoted by one built from 4.
+
+Rankings are deliberately conservative — a stretch needs at least 2 passes and 20 samples before it
+gets a score at all, because a "noisiest road" derived from one brief pass is worse than showing
+nothing. Areas are identified by coordinates, not names; labelling them would need a reverse
+geocoder and inventing names would be worse than showing none.
+
+Today it runs on your own drives through the identical privacy pipeline that would upload them, so
+the transform is exercised on every render. When sync is on, `RemoteCommunitySource` swaps in and
+the aggregation, UI and colour scales are unchanged.
+
+### Sound detection: heuristic vs trained model
+
+Both ship. `heuristic-v1` is the **default**, and that is a measurement rather than a preference: on
+the head-to-head benchmark (`tests/detector-comparison.test.ts`) the trained model scores 8/9 and
+the heuristic 9/9. The model is better on single-partial confusers like reversing beepers; the
+heuristic's hard pitch-stability gate still beats it on note-changing tonal sources such as brass.
+
+`mlp-v1` is a 24-unit MLP over 12 spectral + 4 temporal features, 5 KB of weights, inference as two
+matrix-vector products. No TensorFlow.js — a multi-megabyte WASM runtime on the critical path of
+every drive would cost far more than it saves. `SoundEventDetector` still accepts a TFJS or ONNX
+implementation when a genuinely large model warrants one.
+
+Train with `pnpm train:sound`. The held-out figure it prints (~99.9%) describes how separable the
+*synthetic* corpus is — it is **not** a real-world accuracy claim, and shouldn't be quoted as one.
+The meaningful number is the 8/9 vs 9/9 comparison, where both detectors see identical inputs.
+
 ---
 
 ## Gotchas worth knowing
@@ -190,9 +245,17 @@ is unlayered too, and unlayered CSS beats `@layer` regardless of source order.
 
 ## Not built yet
 
-Cloud sync (the seam is in place — implement `RemoteRepository` and flip `flags.syncEnabled`),
-community heatmaps and road rankings (contributions are generated and anonymised; nothing consumes
-them), and a trained sound model (the interface and registry are ready).
+**A server.** Sync and community aggregation are both implemented and tested, but against
+`MemoryTransport` and local data respectively. Standing up a backend means implementing
+`SyncTransport` (four methods, REST shape documented in `http-transport.ts`) and serving
+`/community/cells`.
+
+**A model trained on real audio.** `mlp-v1` learns from synthesised sound, which bounds what it can
+know — it has never heard an actual street. Retraining is a matter of replacing
+`lib/audio/training/corpus.ts`; the feature extractor, inference path and registry are unchanged,
+and `FEATURE_VERSION` makes a mismatched model refuse to load rather than silently misclassify.
+
+**Place names for areas.** Rankings show coordinates because there is no geocoder.
 
 ## Stack
 

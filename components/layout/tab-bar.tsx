@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Activity, Compass, History, Settings } from 'lucide-react';
+import { Activity, Compass, History, Map, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { SPRING } from '@/components/motion/transitions';
 
@@ -11,6 +11,7 @@ const TABS = [
   { href: '/', label: 'Drive', icon: Compass },
   { href: '/history', label: 'History', icon: History },
   { href: '/stats', label: 'Stats', icon: Activity },
+  { href: '/community', label: 'Roads', icon: Map },
   { href: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 

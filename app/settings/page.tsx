@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Trash2, MicOff, Cloud, Users, Info } from 'lucide-react';
+import { Download, Trash2, MicOff, Cloud, Users, Info, RefreshCw } from 'lucide-react';
 import { AppShell, PageHeader } from '@/components/layout/app-shell';
 import { TabBar } from '@/components/layout/tab-bar';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSettings } from '@/hooks/use-settings';
+import { useSync } from '@/hooks/use-sync';
 import { getRepository } from '@/lib/storage/local-repository';
 import { buildTripExport } from '@/lib/storage/export';
 import { APP_VERSION } from '@/lib/config/constants';
@@ -16,6 +17,7 @@ import { staggerParent, fadeUp } from '@/components/motion/transitions';
 
 export default function SettingsPage() {
   const { flags, update } = useSettings();
+  const sync = useSync(flags.syncEnabled);
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -102,11 +104,45 @@ export default function SettingsPage() {
                 <Toggle
                   icon={<Cloud size={16} />}
                   label="Cloud sync"
-                  description="Not available yet. Your drives stay on this device."
-                  checked={false}
-                  onChange={() => {}}
-                  disabled
+                  description={
+                    sync.isDemo
+                      ? 'No server is configured, so this syncs against an in-memory one — enough to see push, pull and conflict resolution work. Set NEXT_PUBLIC_SYNC_URL to point at a real backend.'
+                      : 'Keep your drives in step across devices.'
+                  }
+                  checked={flags.syncEnabled}
+                  onChange={(v) => update({ syncEnabled: v })}
                 />
+
+                {flags.syncEnabled ? (
+                  <div className="rounded-tile bg-white/4 p-3">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs text-ink-muted">
+                        {sync.status.pending > 0
+                          ? `${sync.status.pending} change${sync.status.pending === 1 ? '' : 's'} queued`
+                          : 'Everything synced'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => void sync.sync()}
+                        disabled={sync.syncing}
+                        className="flex items-center gap-1.5 rounded-lg bg-brand px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                      >
+                        <RefreshCw size={12} className={sync.syncing ? 'animate-spin' : undefined} />
+                        {sync.syncing ? 'Syncing' : 'Sync now'}
+                      </button>
+                    </div>
+                    {sync.status.lastSyncAt ? (
+                      <div className="text-[11px] text-ink-faint">
+                        Last synced {new Date(sync.status.lastSyncAt).toLocaleTimeString()} ·{' '}
+                        {sync.status.pushed} pushed, {sync.status.pulled} pulled
+                        {sync.status.conflicts > 0 ? `, ${sync.status.conflicts} merged` : ''}
+                      </div>
+                    ) : null}
+                    {sync.status.lastError ? (
+                      <div className="mt-1 text-[11px] text-rose">{sync.status.lastError}</div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </Card>
           </motion.div>

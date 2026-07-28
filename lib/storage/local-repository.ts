@@ -267,6 +267,33 @@ class LocalTripRepository implements TripRepository {
       : await db.getAllFromIndex('tripEvents', 'by-tripId', id);
     return events.sort((a, b) => a.t - b.t || a.seq - b.seq);
   }
+
+  /* ------------------------------ sync-only ----------------------------- */
+
+  /** Unlike `get`, this returns tombstones — merge has to see deletes. */
+  async getRaw(id: TripId): Promise<TripRecord | null> {
+    const db = await getDb();
+    return (await db.get('trips', id)) ?? null;
+  }
+
+  async putRaw(trip: TripRecord): Promise<void> {
+    const db = await getDb();
+    // No outbox op: this record came from the server, and queueing it would
+    // push it straight back.
+    await db.put('trips', trip);
+  }
+
+  async appendChunkRaw(chunk: TripSampleChunk): Promise<void> {
+    const db = await getDb();
+    await db.put('tripChunks', chunk);
+  }
+
+  async appendEventsRaw(events: TripEvent[]): Promise<void> {
+    if (events.length === 0) return;
+    const db = await getDb();
+    const tx = db.transaction('tripEvents', 'readwrite');
+    await Promise.all([...events.map((e) => tx.store.put(e)), tx.done]);
+  }
 }
 
 class LocalAggregateRepository implements AggregateRepository {
@@ -442,6 +469,15 @@ export class LocalRepository implements Road360Repository {
     const tx = db.transaction(stores, 'readwrite');
     await Promise.all([...stores.map((s) => tx.objectStore(s).clear()), tx.done]);
     // `meta` is deliberately preserved so the device keeps its identity.
+  }
+
+  async markTripSynced(id: TripId, at: number): Promise<void> {
+    const db = await getDb();
+    const trip = await db.get('trips', id);
+    if (!trip) return;
+    // Revision is untouched on purpose: bumping it would re-dirty the record
+    // and queue another push, forever.
+    await db.put('trips', { ...trip, dirty: 0, syncedAt: at });
   }
 }
 

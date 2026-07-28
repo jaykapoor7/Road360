@@ -48,6 +48,21 @@ export interface TripRepository {
 
   appendEvents(events: TripEvent[]): Promise<void>;
   readEvents(id: TripId, type?: TripEventType): Promise<TripEvent[]>;
+
+  /* ----------------------------- sync-only ------------------------------ *
+   * Writes that deliberately do NOT enqueue an outbox op.
+   *
+   * Everything a pull applies came *from* the server, so routing it through
+   * the normal write path would immediately queue it to be pushed straight
+   * back — an endless sync loop. These also bypass the revision bump, since a
+   * merged record must keep the revision it was given.
+   * ---------------------------------------------------------------------- */
+
+  /** Includes tombstones, which `get` hides — merge has to see deletes. */
+  getRaw(id: TripId): Promise<TripRecord | null>;
+  putRaw(trip: TripRecord): Promise<void>;
+  appendChunkRaw(chunk: TripSampleChunk): Promise<void>;
+  appendEventsRaw(events: TripEvent[]): Promise<void>;
 }
 
 export interface AggregateRepository {
@@ -86,4 +101,9 @@ export interface Road360Repository {
   outbox: OutboxRepository;
   /** Clears all local data. Used by the "reset" action in settings. */
   clearAll(): Promise<void>;
+  /**
+   * Mark a trip as synced without bumping its revision or enqueuing an op.
+   * Called by the sync engine after the server acknowledges a push.
+   */
+  markTripSynced(id: TripId, at: Millis): Promise<void>;
 }
