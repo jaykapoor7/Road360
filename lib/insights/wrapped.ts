@@ -194,7 +194,10 @@ function buildSlides(s: SlideInput): WrappedSlide[] {
     id: 'opening',
     kind: 'stat',
     eyebrow: input.label,
-    headline: `${trips.length} ${pluralise(trips.length, 'drive')}`,
+    // The headline must not restate the numeral — the slide already renders
+    // `value` + `unit` at 76px directly above it, and "1 drive" printed twice
+    // in a row reads as a rendering fault.
+    headline: trips.length === 1 ? 'You recorded one drive' : 'Drives recorded',
     detail: `${distance} and ${formatDurationWords(s.totalDurationMs)} behind the wheel.`,
     value: String(trips.length),
     unit: pluralise(trips.length, 'drive'),

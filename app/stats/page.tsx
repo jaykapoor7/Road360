@@ -37,8 +37,10 @@ const PERIOD_MS: Record<Period, number> = {
 
 export default function StatsPage() {
   const [period, setPeriod] = useState<Period>('week');
-  // Demo drives are excluded so the dashboard reflects real driving.
-  const { trips } = useTrips(false);
+  // Demo drives are included, matching the lifetime aggregate below. Excluding
+  // them here while the lifetime block counted them made the page contradict
+  // itself: "0 drives this week" directly above a lifetime distance.
+  const { trips } = useTrips(true);
   const { lifetime, records } = useLifetime();
 
   const inPeriod = useMemo(() => {
@@ -92,48 +94,49 @@ export default function StatsPage() {
 
           {/* Wrapped entry point */}
           <motion.div variants={fadeUp}>
-            <Link href="/wrapped/month" className="block">
-              <div
-                className="aura relative overflow-hidden rounded-card bg-linear-to-br from-brand to-crimson p-5 text-white active:scale-[0.99]"
-                style={{ ['--aura-color' as string]: '#f43f5e', ['--aura-opacity' as string]: '0.4' }}
-              >
-                <div className="grain absolute inset-0" />
-                <div className="relative flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] font-semibold tracking-[0.13em] text-white/70 uppercase">
-                      Road360 Wrapped
-                    </div>
-                    <div className="mt-0.5 text-xl font-bold">{currentMonth}</div>
-                    <div className="mt-0.5 text-sm text-white/80">Your month on the road</div>
+            <Link href="/wrapped/month" className="block active:scale-[0.99]">
+              <div className="relative flex items-center justify-between gap-3 overflow-hidden rounded-card border border-hairline bg-surface p-4">
+                {/* One thin accent edge instead of a full-bleed gradient — the
+                    card is a link, not a headline. */}
+                <span
+                  className="absolute inset-y-0 left-0 w-[3px]"
+                  style={{ background: 'linear-gradient(180deg,#00E08C,#6E8BFF)' }}
+                  aria-hidden
+                />
+                <div className="min-w-0">
+                  <div className="eyebrow">Road360 Wrapped</div>
+                  <div className="mt-1 text-[17px] font-bold tracking-[-0.01em] text-ink">
+                    {currentMonth}
                   </div>
-                  <ChevronRight size={22} />
+                  <div className="mt-0.5 text-[12px] text-ink-muted">Your month on the road</div>
                 </div>
+                <ChevronRight size={20} className="shrink-0 text-ink-faint" />
               </div>
             </Link>
           </motion.div>
 
           {/* Period totals */}
-          <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3">
-            <StatTile label="Avg score" icon={<Trophy size={13} />} accent="#818cf8">
+          <motion.div variants={fadeUp} className="grid grid-cols-2 gap-2">
+            <StatTile label="Avg score" icon={<Trophy size={13} />}>
               {Math.round(periodTotals.avgScore) || '—'}
             </StatTile>
             <StatTile label="Drives" icon={<Route size={13} />}>
               {inPeriod.length}
             </StatTile>
-            <StatTile label="Distance" icon={<Route size={13} />} accent="#34d399">
+            <StatTile label="Distance" icon={<Route size={13} />} accent="#00E08C">
               {formatDistanceLong(periodTotals.distance)}
             </StatTile>
-            <StatTile label="Horns" icon={<Megaphone size={13} />} accent="#fbbf24">
+            <StatTile label="Horns" icon={<Megaphone size={13} />} accent="#FFC043">
               {periodTotals.horns}
             </StatTile>
           </motion.div>
 
           <motion.div variants={fadeUp}>
-            <TrendChart title="Score trend" points={scoreTrend} color="#818cf8" />
+            <TrendChart title="Score trend" points={scoreTrend} color="#00E08C" />
           </motion.div>
 
           <motion.div variants={fadeUp}>
-            <TrendChart title="Noise trend" points={noiseTrend} unit=" dB" color="#fbbf24" />
+            <TrendChart title="Noise trend" points={noiseTrend} unit=" dB" color="#FFC043" />
           </motion.div>
 
           {/* Lifetime */}
@@ -142,7 +145,7 @@ export default function StatsPage() {
               <CardHeader>
                 <CardTitle>Lifetime</CardTitle>
               </CardHeader>
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col">
                 <LifetimeRow
                   icon={<Route size={14} />}
                   label="Total distance"
@@ -186,7 +189,7 @@ export default function StatsPage() {
                 <CardHeader>
                   <CardTitle>Personal records</CardTitle>
                 </CardHeader>
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col">
                   <RecordRow
                     label="Calmest drive"
                     value={String(records.bestScore.value)}
@@ -198,7 +201,7 @@ export default function StatsPage() {
                       label="Quietest drive"
                       value={`${Math.round(records.quietestTrip.avgDb)} dB`}
                       href={`/trip/${records.quietestTrip.tripId}`}
-                      band="#34d399"
+                      band="#00E08C"
                     />
                   ) : null}
                   {records.mostHorns ? (
@@ -206,7 +209,7 @@ export default function StatsPage() {
                       label="Most horns"
                       value={String(records.mostHorns.count)}
                       href={`/trip/${records.mostHorns.tripId}`}
-                      band="#fbbf24"
+                      band="#FFC043"
                     />
                   ) : null}
                   {records.longestDistance ? (
@@ -214,7 +217,7 @@ export default function StatsPage() {
                       label="Longest drive"
                       value={formatDistanceLong(records.longestDistance.m)}
                       href={`/trip/${records.longestDistance.tripId}`}
-                      band="#22d3ee"
+                      band="#4EA8FF"
                     />
                   ) : null}
                 </div>
@@ -238,12 +241,12 @@ function LifetimeRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-sm text-ink-muted">
+    <div className="flex items-center justify-between gap-3 border-b border-hairline py-2.5 last:border-b-0">
+      <span className="flex items-center gap-2.5 text-[14px] text-ink-muted">
         <span className="text-ink-faint">{icon}</span>
         {label}
       </span>
-      <span className="text-sm font-bold text-ink tabular">{value}</span>
+      <span className="num text-[15px] text-ink">{value}</span>
     </div>
   );
 }
@@ -260,10 +263,13 @@ function RecordRow({
   band: string;
 }) {
   return (
-    <Link href={href} className="flex items-center justify-between">
-      <span className="text-sm text-ink-muted">{label}</span>
+    <Link
+      href={href}
+      className="flex items-center justify-between gap-3 border-b border-hairline py-2.5 last:border-b-0"
+    >
+      <span className="text-[14px] text-ink-muted">{label}</span>
       <span className="flex items-center gap-1.5">
-        <span className="text-sm font-bold tabular" style={{ color: band }}>
+        <span className="num text-[15px]" style={{ color: band }}>
           {value}
         </span>
         <ChevronRight size={14} className="text-ink-faint" />

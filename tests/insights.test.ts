@@ -386,7 +386,7 @@ describe('Road360 Wrapped', () => {
     expect(wrapped.slides.find((s) => s.id === 'trend')?.eyebrow).toBe('Trending calmer');
   });
 
-  it('excludes simulated trips from the numbers', () => {
+  it('counts a simulated trip like any other completed drive', () => {
     const trips = [
       makeTrip({ startedAt: july, stats: tripStats() }),
       makeTrip({ startedAt: july + 1000, stats: tripStats(), simulated: true }),
@@ -399,7 +399,7 @@ describe('Road360 Wrapped', () => {
       periodEnd: july + 30 * 86_400_000,
       trips,
     });
-    expect(wrapped.tripCount).toBe(1);
+    expect(wrapped.tripCount).toBe(2);
   });
 });
 
@@ -435,12 +435,12 @@ describe('lifetime aggregation', () => {
     expect(lifetime.tripCount).toBe(3);
   });
 
-  it('ignores simulated and incomplete trips', () => {
+  it('ignores incomplete trips but counts simulated ones', () => {
     const lifetime = buildLifetime([
       makeTrip({ stats: tripStats(), simulated: true }),
       makeTrip({ stats: tripStats(), status: 'recording' }),
       makeTrip({ stats: tripStats() }),
     ]);
-    expect(lifetime.tripCount).toBe(1);
+    expect(lifetime.tripCount).toBe(2);
   });
 });

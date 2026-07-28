@@ -34,7 +34,7 @@ function HornTile() {
     <StatTile
       label="Horns"
       icon={<Megaphone size={13} />}
-      accent="#fbbf24"
+      accent="#FFC043"
       footnote={gap ? `every ${gap.toFixed(1)}s on average` : 'none yet'}
     >
       <MetricNumber value={count} />
@@ -49,7 +49,7 @@ function SilenceTile() {
     <StatTile
       label="Longest calm"
       icon={<Timer size={13} />}
-      accent="#34d399"
+      accent="#00E08C"
       footnote={`${formatDurationCompact(current)} and counting`}
     >
       {formatDurationCompact(longest)}
@@ -63,20 +63,18 @@ function NoiseTile() {
   const peak = useSessionValue('metrics', (m) => Math.round(m.peakDb));
   return (
     <div className="relative col-span-2 overflow-hidden rounded-tile glass p-4">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2.5 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Volume2 size={13} className="text-ink-faint" />
-          <span className="text-[10px] font-semibold tracking-[0.13em] text-ink-faint uppercase">
-            Noise
-          </span>
+          <span className="eyebrow">Noise</span>
         </div>
-        <div className="flex gap-3 text-[11px] text-ink-muted tabular">
+        <div className="num flex gap-3 text-[11px] text-ink-faint">
           <span>avg {avg}</span>
           <span>peak {peak}</span>
         </div>
       </div>
       <div className="flex items-end gap-3">
-        <div className="text-[2rem] leading-none font-bold text-ink tabular">
+        <div className="num text-[2.125rem] leading-none text-ink">
           <MetricNumber value={current} suffix="dB" />
         </div>
         <div className="flex-1 pb-1">
@@ -90,7 +88,7 @@ function NoiseTile() {
 function BrakeTile() {
   const brakes = useSessionValue('metrics', (m) => m.hardBrakes);
   return (
-    <StatTile label="Hard brakes" icon={<ShieldAlert size={13} />} accent="#fb7185">
+    <StatTile label="Hard brakes" icon={<ShieldAlert size={13} />} accent="#FF5470">
       <MetricNumber value={brakes} />
     </StatTile>
   );
@@ -99,7 +97,7 @@ function BrakeTile() {
 function AccelTile() {
   const accels = useSessionValue('metrics', (m) => m.rapidAccels);
   return (
-    <StatTile label="Rapid accel" icon={<Zap size={13} />} accent="#fb923c">
+    <StatTile label="Rapid accel" icon={<Zap size={13} />} accent="#FF8A3D">
       <MetricNumber value={accels} />
     </StatTile>
   );
@@ -140,7 +138,7 @@ export function LiveStatGrid() {
       variants={staggerParent(0.04)}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-2 gap-3"
+      className="grid grid-cols-2 gap-2"
     >
       {[HornTile, SilenceTile, NoiseTile, BrakeTile, AccelTile, DistanceTile, SpeedTile, StoppedTile].map(
         (Tile, i) => (
@@ -161,28 +159,23 @@ export function LiveHeader() {
   const def = bandDefinition(band);
 
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.13em] text-ink-faint uppercase">
-          <span className="relative flex size-2">
+    <div className="flex items-end justify-between gap-4">
+      <div className="min-w-0">
+        <div className="eyebrow mb-1.5 flex items-center gap-1.5">
+          <span className="relative flex size-1.5">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-rose opacity-70" />
-            <span className="relative inline-flex size-2 rounded-full bg-rose" />
+            <span className="relative inline-flex size-1.5 rounded-full bg-rose" />
           </span>
           Recording
         </div>
-        <div className="text-5xl font-bold tracking-tight text-ink tabular">
-          {formatDuration(tripTimeMs)}
-        </div>
+        <div className="num text-[46px] leading-none text-ink">{formatDuration(tripTimeMs)}</div>
       </div>
 
-      <div className="flex flex-col items-end">
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.13em] text-ink-faint uppercase">
-          <HeartPulse size={13} /> Live score
+      <div className="flex shrink-0 flex-col items-end">
+        <div className="eyebrow mb-1.5 flex items-center gap-1.5">
+          <HeartPulse size={12} /> Live score
         </div>
-        <div
-          className="text-gradient text-5xl font-bold tabular"
-          style={{ backgroundImage: `linear-gradient(135deg, ${def.from}, ${def.to})` }}
-        >
+        <div className="num text-[46px] leading-none" style={{ color: def.to }}>
           {score}
         </div>
       </div>

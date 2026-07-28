@@ -15,6 +15,12 @@ const TABS = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 
+/**
+ * Active state is a hairline rule above the tab plus a colour change, rather
+ * than a filled pill. A pill behind a stacked icon-and-label either clips the
+ * label or forces the whole bar taller; a rule costs one pixel and never
+ * collides with anything.
+ */
 export function TabBar() {
   const pathname = usePathname();
 
@@ -24,7 +30,7 @@ export function TabBar() {
       style={{ height: 'calc(var(--tab-bar-h) + env(safe-area-inset-bottom))' }}
       aria-label="Primary"
     >
-      <ul className="mx-auto flex h-[var(--tab-bar-h)] max-w-md items-stretch justify-around px-2">
+      <ul className="mx-auto flex h-[var(--tab-bar-h)] max-w-md items-stretch justify-around px-1">
         {TABS.map(({ href, label, icon: Icon }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
           return (
@@ -32,23 +38,23 @@ export function TabBar() {
               <Link
                 href={href}
                 aria-current={active ? 'page' : undefined}
-                className="relative flex h-full flex-col items-center justify-center gap-1"
+                className="relative flex h-full flex-col items-center justify-center gap-1.5"
               >
                 {active ? (
                   <motion.span
-                    layoutId="tab-glow"
+                    layoutId="tab-rule"
                     transition={SPRING.snappy}
-                    className="absolute top-2 h-9 w-14 rounded-2xl bg-brand/20"
+                    className="absolute top-0 h-0.5 w-10 rounded-full bg-brand"
                   />
                 ) : null}
                 <Icon
-                  size={20}
-                  strokeWidth={active ? 2.4 : 1.8}
-                  className={cn('relative z-10 transition-colors', active ? 'text-brand-bright' : 'text-ink-faint')}
+                  size={21}
+                  strokeWidth={active ? 2.2 : 1.7}
+                  className={cn('transition-colors', active ? 'text-brand' : 'text-ink-faint')}
                 />
                 <span
                   className={cn(
-                    'relative z-10 text-[10px] font-semibold transition-colors',
+                    'text-[10px] font-semibold tracking-wide transition-colors',
                     active ? 'text-ink' : 'text-ink-faint',
                   )}
                 >

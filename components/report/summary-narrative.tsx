@@ -11,19 +11,17 @@ import { fadeUp } from '@/components/motion/transitions';
  */
 export function SummaryNarrative({ summary }: { summary: TripSummary }) {
   return (
-    <motion.div variants={fadeUp} className="rounded-card glass-strong p-5">
+    <motion.div variants={fadeUp} className="rounded-card glass p-4">
       <div className="mb-3 flex items-center gap-2">
-        <div className="grid size-7 place-items-center rounded-lg bg-brand/20">
-          <Sparkles size={15} className="text-brand-bright" />
-        </div>
-        <span className="text-[11px] font-semibold tracking-[0.13em] text-ink-faint uppercase">
-          Your drive, summarised
-        </span>
+        <Sparkles size={13} className="text-brand" />
+        <span className="eyebrow">Your drive, summarised</span>
       </div>
 
-      <p className="text-lg leading-snug font-semibold text-ink">{summary.headline}</p>
+      <p className="text-[17px] leading-snug font-semibold tracking-[-0.01em] text-ink">
+        {summary.headline}
+      </p>
       {summary.narrative && summary.narrative !== summary.headline ? (
-        <p className="mt-2 text-[15px] leading-relaxed text-ink-muted">
+        <p className="mt-2.5 text-[14px] leading-relaxed text-ink-muted">
           {stripLeadingHeadline(summary.narrative, summary.headline)}
         </p>
       ) : null}

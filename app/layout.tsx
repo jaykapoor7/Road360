@@ -2,10 +2,26 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ServiceWorkerManager } from '@/components/common/service-worker';
 
+const DESCRIPTION =
+  'Spotify Wrapped meets WHOOP, for your commute. Track horns, noise, hard braking and stop-and-go traffic, and get a Road360 Score for every drive.';
+
+/**
+ * `metadataBase` is what turns the generated `opengraph-image` into the
+ * absolute URL that X, iMessage and Slack all require — without it the tag is
+ * emitted as a relative path and the preview silently falls back to a bare
+ * link. It reads from the deploy URL where one is set so previews on a branch
+ * deployment point at that deployment rather than production.
+ */
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'http://localhost:3000');
+
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL),
   title: 'Road360 — How chaotic was your commute?',
-  description:
-    'Spotify Wrapped meets WHOOP, for your commute. Track horns, noise, hard braking and stop-and-go traffic, and get a Road360 Score for every drive.',
+  description: DESCRIPTION,
   applicationName: 'Road360',
   appleWebApp: {
     capable: true,
@@ -21,9 +37,16 @@ export const metadata: Metadata = {
     apple: '/icons/apple-touch-icon.png',
   },
   openGraph: {
-    title: 'Road360',
-    description: 'How chaotic was your commute?',
+    title: 'Road360 — How chaotic was your commute?',
+    description: DESCRIPTION,
+    siteName: 'Road360',
     type: 'website',
+    url: '/',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Road360 — How chaotic was your commute?',
+    description: DESCRIPTION,
   },
 };
 

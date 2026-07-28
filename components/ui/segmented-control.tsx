@@ -21,7 +21,10 @@ export function SegmentedControl<T extends string>({
   className,
 }: SegmentedControlProps<T>) {
   return (
-    <div className={cn('glass flex gap-1 rounded-pill p-1', className)} role="tablist">
+    <div
+      className={cn('flex gap-0.5 rounded-pill border border-hairline bg-surface p-1', className)}
+      role="tablist"
+    >
       {options.map((opt) => {
         const active = opt.value === value;
         return (
@@ -33,14 +36,14 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(opt.value)}
             className={cn(
               'relative flex-1 rounded-pill px-3 py-1.5 text-[13px] font-semibold transition-colors',
-              active ? 'text-white' : 'text-ink-faint hover:text-ink-muted',
+              active ? 'text-void' : 'text-ink-faint hover:text-ink-muted',
             )}
           >
             {active ? (
               <motion.span
                 layoutId={layoutId}
                 transition={SPRING.snappy}
-                className="absolute inset-0 rounded-pill bg-linear-to-b from-brand-bright to-brand"
+                className="absolute inset-0 rounded-pill bg-ink"
               />
             ) : null}
             <span className="relative z-10">{opt.label}</span>

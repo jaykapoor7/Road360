@@ -36,7 +36,7 @@ export const ShareCard = forwardRef<
       style={{
         width: size.width,
         height: size.height,
-        background: `linear-gradient(160deg, ${band.from}26, ${band.to}14, ${CARD_PALETTE.background} 62%)`,
+        background: `linear-gradient(165deg, ${band.from}2E 0%, ${band.to}12 30%, ${CARD_PALETTE.background} 64%)`,
         color: CARD_PALETTE.ink,
         display: 'flex',
         flexDirection: 'column',
@@ -80,16 +80,20 @@ export const ShareCard = forwardRef<
         >
           Road360 Score
         </div>
+        {/*
+          A flat band colour, not gradient-clipped text. `background-clip: text`
+          relies on the renderer keeping the fill while dropping the background
+          box — inside an SVG foreignObject that is exactly the pairing that
+          fails, and when it does the score renders as a transparent hole in the
+          middle of the card. A solid fill cannot fail that way.
+        */}
         <div
           style={{
             fontSize: isStory ? 340 : 260,
             fontWeight: 800,
             lineHeight: 1,
             letterSpacing: -8,
-            background: `linear-gradient(135deg, ${band.from}, ${band.to})`,
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            color: 'transparent',
+            color: band.to,
             fontVariantNumeric: 'tabular-nums',
           }}
         >
@@ -141,7 +145,8 @@ export const ShareCard = forwardRef<
         </div>
 
         <div style={{ fontSize: 26, color: CARD_PALETTE.inkFaint, textAlign: 'center' }}>
-          {formatDurationCompact(stats.durationMs)} of driving · tracked with Road360
+          {formatDurationCompact(stats.durationMs)} of driving
+          {trip.simulated ? ' · demo drive' : ''} · tracked with Road360
         </div>
       </div>
     </div>

@@ -57,6 +57,11 @@ export async function shareCard(
     }
   }
 
+  downloadBlob(blob, filename);
+  return 'downloaded';
+}
+
+export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -64,5 +69,22 @@ export async function shareCard(
   a.click();
   // Revoking immediately can cancel the download in some browsers.
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
-  return 'downloaded';
+}
+
+/**
+ * Put a PNG on the clipboard so it can be pasted straight into a composer.
+ *
+ * X's intent URL can prefill text but cannot attach media, so on desktop the
+ * only way to get the card into the post is the clipboard. Support is patchy —
+ * Firefox has no `ClipboardItem` for images — hence the boolean rather than a
+ * throw, so the caller can adjust what it tells the user.
+ */
+export async function copyBlobToClipboard(blob: Blob): Promise<boolean> {
+  try {
+    if (typeof ClipboardItem === 'undefined' || !navigator.clipboard?.write) return false;
+    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+    return true;
+  } catch {
+    return false;
+  }
 }

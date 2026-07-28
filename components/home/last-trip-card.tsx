@@ -2,67 +2,61 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, Megaphone, Volume2, Route } from 'lucide-react';
+import { ChevronRight, Sparkles } from 'lucide-react';
 import type { TripListItem } from '@/lib/domain/trip';
 import { bandDefinition } from '@/lib/score/labels';
-import { formatDistanceLong, formatDurationCompact, formatDateShort, formatTimeOfDay } from '@/lib/utils/format';
+import {
+  formatDistanceLong,
+  formatDurationCompact,
+  formatDateShort,
+  formatTimeOfDay,
+} from '@/lib/utils/format';
 import { SPRING } from '@/components/motion/transitions';
 
-/** The most recent drive, shown as a hero card on the home screen. */
+/**
+ * The most recent drive as a compact summary row.
+ *
+ * The four measurements sit in a fixed grid rather than a wrapping flex row.
+ * Wrapped, the last item dropped onto its own line and the card grew a ragged
+ * extra row whenever a distance crossed into four digits.
+ */
 export function LastTripCard({ trip }: { trip: TripListItem }) {
   const band = bandDefinition(trip.band);
 
+  const cells: { label: string; value: string }[] = [
+    { label: 'Distance', value: formatDistanceLong(trip.distanceM) },
+    { label: 'Time', value: formatDurationCompact(trip.durationMs) },
+    { label: 'Horns', value: String(trip.hornCount) },
+    { label: 'Noise', value: `${Math.round(trip.avgDb)} dB` },
+  ];
+
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={SPRING.smooth}>
-      <Link href={`/trip/${trip.id}`} className="block">
-        <div
-          className="aura relative overflow-hidden rounded-card glass-strong p-5"
-          style={{ ['--aura-color' as string]: band.to, ['--aura-opacity' as string]: '0.22' }}
-        >
-          <div className="mb-4 flex items-start justify-between">
-            <div>
-              <div className="text-[11px] font-semibold tracking-[0.13em] text-ink-faint uppercase">
-                Last drive
-              </div>
-              <div className="mt-0.5 text-sm text-ink-muted">
-                {formatDateShort(trip.startedAt)} · {formatTimeOfDay(trip.startedAt)}
-              </div>
-            </div>
-            <ChevronRight size={20} className="text-ink-faint" />
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={SPRING.smooth}>
+      <Link href={`/trip/${trip.id}`} className="block active:scale-[0.99]">
+        <div className="rounded-card glass p-4">
+          <div className="mb-4 flex items-center gap-2">
+            <span
+              className="size-2 shrink-0 rounded-full"
+              style={{ background: band.to }}
+              aria-hidden
+            />
+            <span className="text-[14px] font-semibold text-ink">{band.label}</span>
+            {trip.simulated ? (
+              <Sparkles size={13} className="shrink-0 text-brand" aria-label="Demo drive" />
+            ) : null}
+            <span className="ml-auto flex shrink-0 items-center gap-1 text-[12px] text-ink-faint">
+              {formatDateShort(trip.startedAt)} · {formatTimeOfDay(trip.startedAt)}
+              <ChevronRight size={15} />
+            </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div
-              className="grid size-20 shrink-0 place-items-center rounded-2xl"
-              style={{ background: `linear-gradient(135deg, ${band.from}22, ${band.to}22)` }}
-            >
-              <div className="text-center">
-                <div
-                  className="text-gradient text-3xl font-bold tabular"
-                  style={{ backgroundImage: `linear-gradient(135deg, ${band.from}, ${band.to})` }}
-                >
-                  {trip.scoreValue}
-                </div>
+          <div className="grid grid-cols-4 gap-2">
+            {cells.map((cell) => (
+              <div key={cell.label}>
+                <div className="eyebrow mb-1 truncate">{cell.label}</div>
+                <div className="num text-[17px] text-ink">{cell.value}</div>
               </div>
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <div className="mb-2 text-lg font-bold text-ink">
-                {band.emoji} {band.label}
-              </div>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-ink-muted">
-                <span className="flex items-center gap-1">
-                  <Route size={13} /> {formatDistanceLong(trip.distanceM)}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Megaphone size={13} /> {trip.hornCount} horns
-                </span>
-                <span className="flex items-center gap-1">
-                  <Volume2 size={13} /> {Math.round(trip.avgDb)} dB
-                </span>
-                <span>{formatDurationCompact(trip.durationMs)}</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </Link>

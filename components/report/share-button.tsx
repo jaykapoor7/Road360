@@ -14,7 +14,7 @@ export function ShareButton({ trip }: { trip: TripRecord }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="glass grid size-10 place-items-center rounded-full text-ink"
+        className="grid size-10 shrink-0 place-items-center rounded-full border border-hairline bg-surface text-ink"
         aria-label="Share this drive"
       >
         <Share2 size={18} />

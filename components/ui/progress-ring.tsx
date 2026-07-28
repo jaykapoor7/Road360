@@ -18,17 +18,23 @@ interface ProgressRingProps {
   /** Fraction of the circle used, 1 = full ring, 0.75 = open-bottom arc. */
   sweep?: number;
   delay?: number;
+  /** Track opacity. Lower it when the ring sits on a card rather than on black. */
+  trackOpacity?: number;
 }
 
 /**
  * The score ring. Drawn with SVG rather than conic-gradient because a
  * conic-gradient cannot be animated smoothly and does not rasterise reliably
  * inside share cards.
+ *
+ * The stroke is deliberately thin relative to the diameter. A heavy ring reads
+ * as a progress bar bent into a circle; a thin one reads as an instrument, and
+ * leaves the centre free for the only thing that matters — the number.
  */
 export function ProgressRing({
   value,
   size = 220,
-  stroke = 14,
+  stroke = 10,
   from,
   to,
   className,
@@ -36,6 +42,7 @@ export function ProgressRing({
   gradientId,
   sweep = 0.75,
   delay = 0,
+  trackOpacity = 0.07,
 }: ProgressRingProps) {
   const reduceMotion = useReducedMotion();
   const radius = (size - stroke) / 2;
@@ -46,8 +53,11 @@ export function ProgressRing({
   const rotation = 90 + ((1 - sweep) * 360) / 2;
 
   return (
-    <div className={cn('relative grid place-items-center', className)} style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90" style={{ transform: `rotate(${rotation}deg)` }}>
+    <div
+      className={cn('relative grid place-items-center', className)}
+      style={{ width: size, height: size }}
+    >
+      <svg width={size} height={size} style={{ transform: `rotate(${rotation}deg)` }}>
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={from} />
@@ -61,7 +71,7 @@ export function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgb(255 255 255 / 0.07)"
+          stroke={`rgb(255 255 255 / ${trackOpacity})`}
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={`${arc} ${circumference}`}
@@ -80,7 +90,6 @@ export function ProgressRing({
           initial={reduceMotion ? false : { strokeDashoffset: arc }}
           animate={{ strokeDashoffset: arc * (1 - pct) }}
           transition={{ duration: reduceMotion ? 0 : DURATION.reveal, ease: EASE.outExpo, delay }}
-          style={{ filter: `drop-shadow(0 0 12px ${to}55)` }}
         />
       </svg>
 

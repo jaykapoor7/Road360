@@ -49,41 +49,39 @@ export function DriveControls({
   };
 
   return (
-    <div className="flex items-center justify-center gap-4">
+    <div className="flex items-end justify-center gap-5">
       <button
         type="button"
         onClick={paused ? onResume : onPause}
-        className="glass grid size-16 place-items-center rounded-full text-ink active:scale-95"
+        className="grid size-14 place-items-center rounded-full border border-hairline bg-surface text-ink active:scale-95"
         aria-label={paused ? 'Resume' : 'Pause'}
       >
-        {paused ? <Play size={24} className="ml-0.5" /> : <Pause size={24} />}
+        {paused ? <Play size={22} className="ml-0.5" /> : <Pause size={22} />}
       </button>
 
-      <button
-        type="button"
-        onPointerDown={startHold}
-        onPointerUp={clearHold}
-        onPointerLeave={clearHold}
-        className={cn(
-          'relative grid size-20 place-items-center overflow-hidden rounded-full',
-          'bg-linear-to-b from-rose to-crimson text-white active:scale-95',
-        )}
-        aria-label="Hold to end drive"
-      >
-        <motion.span
-          className="absolute inset-0 bg-white/30"
-          style={{ scaleY: holdProgress, originY: 1 }}
-        />
-        <Square size={26} className="relative z-10" fill="currentColor" />
-      </button>
-
-      <div className="grid size-16 place-items-center">
-        <span className="text-center text-[10px] leading-tight font-semibold text-ink-faint">
-          hold to
-          <br />
-          end
-        </span>
+      <div className="flex flex-col items-center gap-2">
+        <button
+          type="button"
+          onPointerDown={startHold}
+          onPointerUp={clearHold}
+          onPointerLeave={clearHold}
+          className={cn(
+            'relative grid size-20 place-items-center overflow-hidden rounded-full',
+            'bg-crimson text-white active:scale-95',
+          )}
+          aria-label="Hold to end drive"
+        >
+          <motion.span
+            className="absolute inset-0 bg-white/30"
+            style={{ scaleY: holdProgress, originY: 1 }}
+          />
+          <Square size={24} className="relative z-10" fill="currentColor" />
+        </button>
+        <span className="eyebrow">Hold to end</span>
       </div>
+
+      {/* Balances the pause button so the stop control stays centred. */}
+      <div className="size-14" aria-hidden />
     </div>
   );
 }

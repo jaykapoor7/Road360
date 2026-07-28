@@ -3,8 +3,9 @@ import { cn } from '@/lib/utils/cn';
 type DivProps = React.HTMLAttributes<HTMLDivElement>;
 
 /**
- * `flat` renders the same silhouette without backdrop-filter, for share cards —
- * html-to-image cannot composite backdrop-filter inside an SVG foreignObject.
+ * `flat` renders the same silhouette without depending on a CSS custom
+ * property, for share cards — those are rasterised detached from the app, so
+ * anything resolved from `:root` would come out unstyled.
  */
 export function Card({
   className,
@@ -14,7 +15,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-card p-5',
+        'relative overflow-hidden rounded-card p-4',
         flat ? 'glass-flat' : 'glass',
         className,
       )}
@@ -24,7 +25,9 @@ export function Card({
 }
 
 export function CardHeader({ className, ...props }: DivProps) {
-  return <div className={cn('mb-3 flex items-center justify-between gap-3', className)} {...props} />;
+  return (
+    <div className={cn('mb-3 flex items-center justify-between gap-3', className)} {...props} />
+  );
 }
 
 export function CardTitle({
@@ -33,13 +36,7 @@ export function CardTitle({
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3
-      className={cn(
-        'text-[11px] font-semibold tracking-[0.14em] text-ink-faint uppercase',
-        className,
-      )}
-      {...props}
-    >
+    <h3 className={cn('eyebrow', className)} {...props}>
       {children}
     </h3>
   );

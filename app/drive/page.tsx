@@ -64,11 +64,11 @@ function DriveScreen() {
             <LiveHeader />
           </div>
 
-          <div className="mb-3">
+          <div className="mb-3.5">
             <SensorStatusRow />
           </div>
 
-          <LiveMap className="mb-4 h-44 rounded-card border border-white/8" />
+          <LiveMap className="mb-3 h-44 overflow-hidden rounded-card border border-hairline" />
 
           <div className="flex-1">
             <LiveStatGrid />
@@ -97,7 +97,7 @@ function DriveScreen() {
         className="flex min-h-[80dvh] flex-col justify-center gap-8"
       >
         {showWizard ? (
-          <div className="glass-strong rounded-card p-6">
+          <div className="rounded-card glass p-5">
             <PermissionWizard
               permissions={permissions}
               onComplete={() => void beginDrive(false)}
@@ -108,29 +108,30 @@ function DriveScreen() {
           <>
             <motion.div variants={fadeUp} className="text-center">
               <div
-                className="aura mx-auto mb-6 grid size-24 place-items-center rounded-[2rem]"
-                style={{ ['--aura-color' as string]: '#6366f1', ['--aura-opacity' as string]: '0.4' }}
+                className="aura relative mx-auto mb-7 grid size-20 place-items-center rounded-[1.75rem] border border-hairline bg-surface"
+                style={{ ['--aura-color' as string]: '#00e08c', ['--aura-opacity' as string]: '0.3' }}
               >
-                <div className="glass grid size-24 place-items-center rounded-[2rem]">
-                  <Compass size={44} className="text-brand-bright" />
-                </div>
+                <Compass size={36} className="text-brand" />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-ink">Ready to drive</h1>
-              <p className="mx-auto mt-2 max-w-xs text-sm text-ink-muted">
+              <h1 className="text-[28px] leading-none font-bold tracking-[-0.02em] text-ink">
+                Ready to drive
+              </h1>
+              <p className="mx-auto mt-3 max-w-[19rem] text-[14px] leading-relaxed text-ink-muted">
                 Road360 listens for horns, feels every brake, and scores how chaotic your commute
                 really is.
               </p>
             </motion.div>
 
-            <motion.div variants={fadeUp} className="flex flex-col gap-3">
+            <motion.div variants={fadeUp} className="flex flex-col gap-2.5">
               <Button size="lg" full onClick={() => setShowWizard(true)}>
                 Start drive
               </Button>
-              <Button size="lg" variant="glass" full onClick={() => void beginDrive(true)}>
-                <Sparkles size={18} /> Try a demo drive
+              <Button size="md" variant="subtle" full onClick={() => void beginDrive(true)}>
+                <Sparkles size={16} className="text-brand" /> Try a demo drive
               </Button>
-              <p className="text-center text-xs text-ink-faint">
-                No sensors? The demo replays a real commute so you can see everything work.
+              <p className="mt-1 text-center text-[12px] leading-relaxed text-ink-faint">
+                No sensors handy? The demo synthesises a real commute and runs it through the same
+                detector and scorer.
               </p>
             </motion.div>
           </>

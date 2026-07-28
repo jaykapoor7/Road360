@@ -66,8 +66,7 @@ export function EventTimeline({
                 type="button"
                 onClick={onSeek ? () => onSeek(entry.t) : undefined}
                 initial={{ opacity: 0, x: -8 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: Math.min(i * 0.02, 0.4) }}
                 className={cn(
                   'relative flex items-center gap-3 rounded-xl py-1 pr-2 text-left transition-colors',

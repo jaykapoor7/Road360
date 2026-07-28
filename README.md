@@ -27,8 +27,14 @@ No sensors handy? Every screen is demoable:
 ```
 
 Demo drives synthesise real waveforms and run them through the real FFT and the real detector, so
-they exercise the whole pipeline rather than faking results. They are flagged `simulated` and
-excluded from lifetime stats and achievements.
+they exercise the whole pipeline rather than faking results.
+
+They **count** — toward lifetime totals, streaks, achievements and Wrapped — and carry a `simulated`
+flag that the UI shows as a ✦ wherever a drive is listed. Excluding them was the tidier answer on
+paper and the wrong one in practice: someone who tried the demo landed on a Stats screen reading
+"0 drives" above a non-zero lifetime distance, which reads as a broken app rather than a scrupulous
+one. Anyone who wants clean numbers can delete them; nobody can be misled by a drive that is
+labelled on every screen it appears on.
 
 ## Scripts
 
@@ -36,7 +42,7 @@ excluded from lifetime stats and achievements.
 | --- | --- |
 | `pnpm dev` | Dev server |
 | `pnpm build` | Production build (**webpack — see the Turbopack note**) |
-| `pnpm test` | Vitest suite (140 tests) |
+| `pnpm test` | Vitest suite (194 tests) |
 | `pnpm typecheck` | `tsc --noEmit`, strict |
 | `pnpm lint` | ESLint, including the `lib/**` purity rule |
 | `pnpm verify` | All of the above |
@@ -45,6 +51,25 @@ excluded from lifetime stats and achievements.
 ---
 
 ## Architecture
+
+### The visual system
+
+True-black canvas, near-black cards, one hairline, and colour reserved almost entirely for data.
+There is no glassmorphism: `backdrop-filter` cost a frame on every scroll, muddied the data colours
+behind it, and cannot be rasterised into a share card. `.glass` survives as the single card class
+but is now a flat fill plus a 1px border.
+
+Two rules do most of the work:
+
+- **Accent the number, not the panel.** A tile's value takes the band colour; the tile itself never
+  does. Six tinted panels compete with each other, six tinted numbers read as one instrument.
+- **One type ramp.** A `.num` class (tabular figures, −0.03em tracking) for every measurement and an
+  `.eyebrow` class (10px, 0.14em, uppercase) for every label, so a new screen cannot invent its own
+  scale.
+
+The primary action is white on black rather than a brand gradient — on a true-black canvas nothing
+outranks pure white, which leaves the accent free to mean "live" and the band colours free to mean
+"this is your score".
 
 ### The layering rule
 
@@ -217,6 +242,27 @@ Train with `pnpm train:sound`. The held-out figure it prints (~99.9%) describes 
 The meaningful number is the 8/9 vs 9/9 comparison, where both detectors see identical inputs.
 
 ---
+
+### Sharing
+
+Three routes out, because they fail in different places:
+
+- **Share** — `navigator.share({ files })`, the only one that hands the PNG straight to another app.
+- **Post to X** — X's intent URL can prefill the composer but cannot be given a file, so the card
+  goes to the clipboard via `ClipboardItem` and the user pastes it. Where the clipboard refuses
+  images (Firefox has no image `ClipboardItem`) it downloads instead and the note says so, rather
+  than opening an empty composer and leaving them to post a bare link.
+- **Save image** — the fallback that always works.
+
+Link previews come from `app/opengraph-image.tsx`, generated at build time by Satori. `metadataBase`
+in the root layout is what makes the emitted tag absolute; without it the URL is relative and every
+unfurl silently degrades to a plain link. It reads `NEXT_PUBLIC_APP_URL`, falling back to the Vercel
+production URL, so a branch deployment previews as itself.
+
+Satori supports a subset of CSS — flexbox only, explicit `display: flex` on anything with more than
+one child — which is why that file is written flat instead of reusing the app's components. It
+fetches no webfont on purpose: a build that reaches for a font CDN fails on a machine without
+network access.
 
 ## Gotchas worth knowing
 

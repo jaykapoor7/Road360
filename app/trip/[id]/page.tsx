@@ -70,17 +70,19 @@ export default function TripReportPage({ params }: { params: Promise<{ id: strin
     <AppShell>
       <motion.div variants={staggerParent(0.08)} initial="hidden" animate="show" className="flex flex-col gap-6">
         {/* Top bar */}
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between gap-3 pt-1">
           <Link
             href="/history"
-            className="glass grid size-10 place-items-center rounded-full text-ink"
+            className="grid size-10 shrink-0 place-items-center rounded-full border border-hairline bg-surface text-ink"
             aria-label="Back"
           >
             <ArrowLeft size={18} />
           </Link>
-          <div className="text-center">
-            <div className="text-sm font-semibold text-ink">{formatDateLong(trip.startedAt)}</div>
-            <div className="text-xs text-ink-faint">{formatTimeOfDay(trip.startedAt)}</div>
+          <div className="min-w-0 text-center">
+            <div className="truncate text-[13px] font-semibold text-ink">
+              {formatDateLong(trip.startedAt)}
+            </div>
+            <div className="text-[11px] text-ink-faint">{formatTimeOfDay(trip.startedAt)}</div>
           </div>
           <ShareButton trip={trip} />
         </div>

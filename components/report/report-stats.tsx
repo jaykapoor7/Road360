@@ -36,7 +36,7 @@ export function ReportStats({ stats }: { stats: TripStats }) {
       label: 'Horns',
       icon: <Megaphone size={13} />,
       value: String(stats.soundCounts.horn),
-      accent: '#fbbf24',
+      accent: '#FFC043',
       footnote: stats.avgSecondsBetweenHorns
         ? `one every ${formatSecondsPrecise(stats.avgSecondsBetweenHorns)}`
         : 'none',
@@ -45,7 +45,7 @@ export function ReportStats({ stats }: { stats: TripStats }) {
       label: 'Longest calm',
       icon: <Timer size={13} />,
       value: formatDurationCompact(stats.longestSilenceMs),
-      accent: '#34d399',
+      accent: '#00E08C',
     },
     {
       label: 'Avg noise',
@@ -57,13 +57,13 @@ export function ReportStats({ stats }: { stats: TripStats }) {
       label: 'Hard brakes',
       icon: <ShieldAlert size={13} />,
       value: String(stats.hardBrakes),
-      accent: '#fb7185',
+      accent: '#FF5470',
     },
     {
       label: 'Rapid accel',
       icon: <Zap size={13} />,
       value: String(stats.rapidAccels),
-      accent: '#fb923c',
+      accent: '#FF8A3D',
     },
     {
       label: 'Time stopped',
@@ -82,9 +82,8 @@ export function ReportStats({ stats }: { stats: TripStats }) {
     <motion.div
       variants={staggerParent(0.03)}
       initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: '-40px' }}
-      className="grid grid-cols-2 gap-3"
+      animate="show"
+      className="grid grid-cols-2 gap-2"
     >
       {tiles.map((tile) => (
         <motion.div key={tile.label} variants={fadeUp}>

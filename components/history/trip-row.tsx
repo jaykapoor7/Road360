@@ -22,30 +22,28 @@ export function TripRow({ trip, index = 0 }: { trip: TripListItem; index?: numbe
       transition={{ delay: Math.min(index * 0.03, 0.3) }}
     >
       <Link href={`/trip/${trip.id}`} className="block">
-        <div className="glass flex items-center gap-3 rounded-tile p-3 active:scale-[0.99]">
+        <div className="flex items-center gap-3 rounded-tile glass p-3 active:scale-[0.99]">
           <div
-            className="grid size-12 shrink-0 place-items-center rounded-xl text-lg font-bold tabular"
-            style={{
-              background: `linear-gradient(135deg, ${band.from}22, ${band.to}22)`,
-              color: band.to,
-            }}
+            className="num grid size-12 shrink-0 place-items-center rounded-xl text-[19px]"
+            style={{ background: `${band.to}14`, color: band.to }}
           >
             {trip.scoreValue}
           </div>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="truncate text-sm font-semibold text-ink">
-                {trip.title ?? `${formatDateShort(trip.startedAt)} · ${formatTimeOfDay(trip.startedAt)}`}
+              <span className="truncate text-[14px] font-semibold text-ink">
+                {trip.title ??
+                  `${formatDateShort(trip.startedAt)} · ${formatTimeOfDay(trip.startedAt)}`}
               </span>
               {trip.simulated ? (
-                <Sparkles size={12} className="shrink-0 text-brand-bright" aria-label="Demo drive" />
+                <Sparkles size={12} className="shrink-0 text-brand" aria-label="Demo drive" />
               ) : null}
             </div>
-            <div className="mt-0.5 flex gap-3 text-[12px] text-ink-muted">
+            <div className="num mt-1 flex gap-3 text-[12px] text-ink-faint">
               <span>{formatDistanceLong(trip.distanceM)}</span>
               <span>{formatDurationCompact(trip.durationMs)}</span>
-              <span className="flex items-center gap-0.5">
+              <span className="flex items-center gap-1">
                 <Megaphone size={11} /> {trip.hornCount}
               </span>
             </div>

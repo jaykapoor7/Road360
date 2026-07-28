@@ -37,7 +37,7 @@ export function SensorStatusRow() {
           <div
             key={kind}
             className={cn(
-              'glass flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[11px] font-semibold',
+              'flex items-center gap-1.5 rounded-pill border border-hairline bg-surface px-2.5 py-1 text-[11px] font-semibold',
               statusColor(status),
             )}
           >

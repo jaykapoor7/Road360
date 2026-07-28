@@ -80,11 +80,12 @@ export default function CommunityPage() {
             <motion.div variants={fadeUp}>
               <Card>
                 <div className="py-8 text-center">
-                  <MapPin size={30} className="mx-auto mb-3 text-ink-faint" />
-                  <h2 className="font-bold text-ink">No road data yet</h2>
-                  <p className="mx-auto mt-1 max-w-xs text-sm text-ink-muted">
-                    Record a drive and this map fills in. Cells only appear once a stretch of road
-                    has enough passes behind it.
+                  <MapPin size={28} className="mx-auto mb-3 text-ink-faint" />
+                  <h2 className="text-[16px] font-bold text-ink">No road data yet</h2>
+                  <p className="mx-auto mt-2 max-w-[19rem] text-[13px] leading-relaxed text-ink-muted">
+                    Record a drive and this map fills in. Privacy trimming drops the first and last
+                    250 m of every trace, so a drive needs to be longer than about 500 m before any
+                    of it can appear here.
                   </p>
                 </div>
               </Card>
@@ -92,7 +93,7 @@ export default function CommunityPage() {
           ) : (
             <>
               <motion.div variants={fadeUp}>
-                <div className="relative overflow-hidden rounded-card border border-white/8">
+                <div className="relative overflow-hidden rounded-card border border-hairline">
                   <RouteMapLazy className="h-72" heat={heat} bounds={mapBounds} interactive />
                   {/* Legend */}
                   <div className="glass-strong absolute right-3 bottom-3 z-[500] flex items-center gap-2 rounded-pill px-3 py-1.5">

@@ -36,7 +36,7 @@ export default function WrappedPage({ params }: { params: Promise<{ period: stri
 
       const all: TripRecord[] = await getRepository().trips.listRecords({
         limit: 100_000,
-        includeSimulated: false,
+        includeSimulated: true,
       });
       const inPeriod = all.filter((t) => t.startedAt >= start && t.startedAt <= end);
 
@@ -64,17 +64,23 @@ export default function WrappedPage({ params }: { params: Promise<{ period: stri
   const slide = report?.slides[index];
   const total = report?.slides.length ?? 0;
 
+  /**
+   * One colour per slide, fading to black well before the foot of the screen.
+   * Wrapped is the one place the app is allowed to be saturated, but the wash
+   * still has to bottom out at the same black everything else sits on or the
+   * slides stop feeling like the same product.
+   */
   const gradient = useMemo(() => {
-    if (!slide) return 'linear-gradient(160deg, #1a1740, #07070a)';
+    if (!slide) return 'linear-gradient(170deg, #101018 0%, #000000 60%)';
     if (slide.band) {
       const band = bandDefinition(slide.band);
-      return `linear-gradient(160deg, ${band.from}44, ${band.to}22, #07070a)`;
+      return `linear-gradient(170deg, ${band.from}38 0%, ${band.to}14 32%, #000000 68%)`;
     }
     const palettes = [
-      'linear-gradient(160deg, #6366f144, #22d3ee22, #07070a)',
-      'linear-gradient(160deg, #fbbf2444, #fb718522, #07070a)',
-      'linear-gradient(160deg, #34d39944, #6366f122, #07070a)',
-      'linear-gradient(160deg, #f43f5e44, #818cf822, #07070a)',
+      'linear-gradient(170deg, #00E08C38 0%, #4EA8FF14 32%, #000000 68%)',
+      'linear-gradient(170deg, #FFC04338 0%, #FF547014 32%, #000000 68%)',
+      'linear-gradient(170deg, #6E8BFF38 0%, #00E08C14 32%, #000000 68%)',
+      'linear-gradient(170deg, #FF2D5538 0%, #FF8A3D14 32%, #000000 68%)',
     ];
     return palettes[index % palettes.length]!;
   }, [slide, index]);
@@ -105,7 +111,7 @@ export default function WrappedPage({ params }: { params: Promise<{ period: stri
 
       <Link
         href="/stats"
-        className="absolute top-[max(2.5rem,calc(env(safe-area-inset-top)+1.75rem))] right-4 z-20 grid size-9 place-items-center rounded-full bg-black/30 text-white backdrop-blur"
+        className="absolute top-[max(2.5rem,calc(env(safe-area-inset-top)+1.75rem))] right-4 z-20 grid size-9 place-items-center rounded-full border border-white/12 bg-black/40 text-white"
         aria-label="Close Wrapped"
       >
         <X size={18} />
@@ -123,28 +129,34 @@ export default function WrappedPage({ params }: { params: Promise<{ period: stri
               transition={SPRING.cinematic}
               className="flex flex-col items-center gap-5"
             >
-              <div className="grid size-16 place-items-center rounded-2xl bg-white/12 text-white backdrop-blur">
-                <Icon name={slide.icon} size={30} />
+              <div className="grid size-14 place-items-center rounded-2xl border border-white/12 bg-white/8 text-white">
+                <Icon name={slide.icon} size={26} />
               </div>
 
-              <div className="text-[11px] font-semibold tracking-[0.2em] text-white/60 uppercase">
+              <div className="text-[10px] font-semibold tracking-[0.2em] text-white/55 uppercase">
                 {slide.eyebrow}
               </div>
 
               {slide.value ? (
                 <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-7xl font-bold text-white tabular">{slide.value}</span>
-                  {slide.unit ? <span className="text-xl font-semibold text-white/70">{slide.unit}</span> : null}
+                  <span className="num text-[76px] leading-none text-white">{slide.value}</span>
+                  {slide.unit ? (
+                    <span className="text-lg font-semibold text-white/60">{slide.unit}</span>
+                  ) : null}
                 </div>
               ) : null}
 
-              <h1 className="text-3xl leading-tight font-bold text-white">{slide.headline}</h1>
-              <p className="max-w-xs text-[15px] leading-relaxed text-white/75">{slide.detail}</p>
+              <h1 className="text-[27px] leading-tight font-bold tracking-[-0.02em] text-white">
+                {slide.headline}
+              </h1>
+              <p className="max-w-[19rem] text-[14px] leading-relaxed text-white/70">
+                {slide.detail}
+              </p>
 
               {slide.tripId ? (
                 <Link
                   href={`/trip/${slide.tripId}`}
-                  className="mt-1 inline-flex items-center gap-1 rounded-pill bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur"
+                  className="mt-1 inline-flex items-center gap-1 rounded-pill border border-white/15 bg-white/10 px-4 py-2 text-[13px] font-semibold text-white"
                 >
                   See that drive <ChevronRight size={15} />
                 </Link>
@@ -176,19 +188,19 @@ export default function WrappedPage({ params }: { params: Promise<{ period: stri
           type="button"
           onClick={() => setIndex((i) => Math.max(0, i - 1))}
           disabled={index === 0}
-          className="grid size-11 place-items-center rounded-full bg-white/12 text-white backdrop-blur disabled:opacity-30"
+          className="grid size-11 place-items-center rounded-full border border-white/12 bg-white/8 text-white disabled:opacity-25"
           aria-label="Previous"
         >
           <ChevronLeft size={20} />
         </button>
-        <span className="text-xs font-semibold text-white/60 tabular">
+        <span className="num text-[12px] text-white/55">
           {index + 1} / {total}
         </span>
         <button
           type="button"
           onClick={() => setIndex((i) => Math.min(total - 1, i + 1))}
           disabled={index >= total - 1}
-          className="grid size-11 place-items-center rounded-full bg-white/12 text-white backdrop-blur disabled:opacity-30"
+          className="grid size-11 place-items-center rounded-full border border-white/12 bg-white/8 text-white disabled:opacity-25"
           aria-label="Next"
         >
           <ChevronRight size={20} />

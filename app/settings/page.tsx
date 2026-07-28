@@ -232,10 +232,17 @@ function Toggle({
           checked ? 'bg-brand' : 'bg-white/12',
         )}
       >
+        {/*
+          `left-0.5` is load-bearing. Without an explicit inset the knob is an
+          absolutely positioned element with `left: auto`, so it falls back to
+          its static position — which inside a <button> is not the left edge,
+          and resolved to 22px: exactly the "on" offset. Every switch rendered
+          as enabled no matter what it was bound to.
+        */}
         <span
           className={cn(
-            'absolute top-0.5 size-5 rounded-full bg-white transition-transform',
-            checked ? 'translate-x-[22px]' : 'translate-x-0.5',
+            'absolute top-0.5 left-0.5 size-5 rounded-full bg-white transition-transform duration-200',
+            checked && 'translate-x-5',
           )}
         />
       </button>

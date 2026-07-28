@@ -336,7 +336,7 @@ class LocalAggregateRepository implements AggregateRepository {
   private async excellentStreak(): Promise<number> {
     const db = await getDb();
     const trips = (await db.getAllFromIndex('trips', 'by-startedAt'))
-      .filter((t) => t.deleted === 0 && t.status === 'completed' && !t.simulated)
+      .filter((t) => t.deleted === 0 && t.status === 'completed')
       .sort((a, b) => b.startedAt - a.startedAt);
 
     let streak = 0;
@@ -350,7 +350,7 @@ class LocalAggregateRepository implements AggregateRepository {
   async records(): Promise<PersonalRecords> {
     const db = await getDb();
     const trips = (await db.getAll('trips')).filter(
-      (t) => t.deleted === 0 && t.status === 'completed' && !t.simulated && t.stats && t.score,
+      (t) => t.deleted === 0 && t.status === 'completed' && t.stats && t.score,
     );
     if (trips.length === 0) return EMPTY_RECORDS;
 

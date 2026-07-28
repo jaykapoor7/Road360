@@ -26,7 +26,10 @@ export function DbMeter({ height = 72 }: { height?: number }) {
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
+      // setTransform, not scale: scale() multiplies the existing matrix, so
+      // rotating the phone twice used to leave the meter drawing at dpr³ and
+      // the bars marching off the canvas.
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
 
@@ -64,21 +67,22 @@ export function DbMeter({ height = 72 }: { height?: number }) {
         const db = history[i]!;
         if (db <= 0) continue;
         const norm = Math.max(0, Math.min(1, (db - min) / (max - min)));
-        const barH = norm * h;
+        const barH = Math.max(1, norm * h);
 
-        // Colour ramps green → amber → rose with level.
-        const hue = 160 - norm * 160;
-        const alpha = 0.35 + 0.65 * (i / historyLen);
-        ctx.fillStyle = `hsla(${hue}, 85%, 60%, ${alpha})`;
-        ctx.fillRect(i * barW, h - barH, barW - 1, barH);
+        // Ramped through the same three band colours the rest of the app uses,
+        // rather than a full hue sweep — an 85%-saturation rainbow inside a
+        // 44px strip was the loudest thing on the screen and meant nothing.
+        const alpha = 0.3 + 0.7 * (i / historyLen);
+        ctx.fillStyle = rampColor(norm, alpha);
+        ctx.fillRect(i * barW, h - barH, Math.max(1, barW - 1), barH);
       }
 
       // Ambient floor line.
       if (floorDb > 0) {
         const norm = Math.max(0, Math.min(1, (floorDb - min) / (max - min)));
         const y = h - norm * h;
-        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.setLineDash([3, 4]);
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(w, y);
@@ -99,4 +103,29 @@ export function DbMeter({ height = 72 }: { height?: number }) {
   }, []);
 
   return <canvas ref={canvasRef} className="w-full" style={{ height }} aria-hidden />;
+}
+
+/** Quiet → loud across the score-band greens, ambers and reds. */
+function rampColor(norm: number, alpha: number): string {
+  const stops: [number, [number, number, number]][] = [
+    [0, [0, 224, 140]],
+    [0.5, [255, 192, 67]],
+    [0.75, [255, 138, 61]],
+    [1, [255, 84, 112]],
+  ];
+
+  let lo = stops[0]!;
+  let hi = stops[stops.length - 1]!;
+  for (let i = 0; i < stops.length - 1; i++) {
+    if (norm >= stops[i]![0] && norm <= stops[i + 1]![0]) {
+      lo = stops[i]!;
+      hi = stops[i + 1]!;
+      break;
+    }
+  }
+
+  const span = hi[0] - lo[0];
+  const t = span === 0 ? 0 : (norm - lo[0]) / span;
+  const mix = (a: number, b: number) => Math.round(a + (b - a) * t);
+  return `rgba(${mix(lo[1][0], hi[1][0])},${mix(lo[1][1], hi[1][1])},${mix(lo[1][2], hi[1][2])},${alpha})`;
 }

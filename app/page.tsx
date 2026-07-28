@@ -1,14 +1,24 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Compass, Sparkles, Megaphone, Route, TrendingUp } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { AppShell } from '@/components/layout/app-shell';
 import { TabBar } from '@/components/layout/tab-bar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ProgressRing } from '@/components/ui/progress-ring';
+import { MetricRow, SectionLabel } from '@/components/ui/metric-row';
 import { LastTripCard } from '@/components/home/last-trip-card';
 import { useTrips, useLifetime } from '@/hooks/use-trips';
-import { greetingFor, formatDistanceLong } from '@/lib/utils/format';
+import { bandDefinition } from '@/lib/score/labels';
+import { startOfWeek } from '@/lib/utils/time';
+import {
+  greetingFor,
+  formatDistanceLong,
+  formatDurationCompact,
+  formatDateLong,
+} from '@/lib/utils/format';
 import { fadeUp, staggerParent } from '@/components/motion/transitions';
 
 export default function HomePage() {
@@ -16,86 +26,151 @@ export default function HomePage() {
   const { lifetime } = useLifetime();
   const lastTrip = trips[0] ?? null;
 
+  // Computed from the list already in memory rather than a second IndexedDB
+  // read — the home screen should never wait on two round-trips to paint.
+  const week = useMemo(() => {
+    const since = startOfWeek(Date.now());
+    const recent = trips.filter((t) => t.startedAt >= since);
+    if (recent.length === 0) return null;
+    return {
+      count: recent.length,
+      avgScore: Math.round(recent.reduce((a, t) => a + t.scoreValue, 0) / recent.length),
+      distanceM: recent.reduce((a, t) => a + t.distanceM, 0),
+      horns: recent.reduce((a, t) => a + t.hornCount, 0),
+    };
+  }, [trips]);
+
+  const band = lastTrip ? bandDefinition(lastTrip.band) : null;
+
   return (
     <>
       <AppShell>
-        <motion.div variants={staggerParent(0.07)} initial="hidden" animate="show" className="flex flex-col gap-6">
-          <motion.header variants={fadeUp} className="pt-2">
-            <p className="text-sm font-medium text-ink-muted">{greetingFor()}</p>
-            <h1 className="text-[32px] leading-tight font-bold tracking-tight text-ink">
-              How chaotic is
-              <br />
-              your commute?
+        <motion.div
+          variants={staggerParent(0.06)}
+          initial="hidden"
+          animate="show"
+          className="flex flex-col gap-7"
+        >
+          <motion.header variants={fadeUp}>
+            <p className="eyebrow">{greetingFor()}</p>
+            <h1 className="mt-1.5 text-[22px] leading-none font-bold tracking-[-0.02em] text-ink">
+              {formatDateLong(Date.now())}
             </h1>
           </motion.header>
 
-          {/* Start Drive hero */}
-          <motion.div variants={fadeUp}>
-            <Link href="/drive" className="block">
-              <div
-                className="aura relative overflow-hidden rounded-card bg-linear-to-br from-brand to-brand-bright p-6 text-white active:scale-[0.99]"
-                style={{ ['--aura-color' as string]: '#818cf8', ['--aura-opacity' as string]: '0.5' }}
-              >
-                <div className="grain absolute inset-0" />
-                <div className="relative flex items-center justify-between">
-                  <div>
-                    <div className="text-xl font-bold">Start drive</div>
-                    <div className="mt-1 text-sm text-white/80">
-                      Tap to track your next commute
+          {/* Hero — the last drive's score, or an invitation to record one. */}
+          <motion.div variants={fadeUp} className="flex flex-col items-center">
+            {loading ? (
+              <Skeleton className="size-[220px] rounded-full" />
+            ) : lastTrip && band ? (
+              <Link href={`/trip/${lastTrip.id}`} className="active:scale-[0.99]">
+                <div
+                  className="aura relative"
+                  style={{
+                    ['--aura-color' as string]: band.to,
+                    ['--aura-opacity' as string]: '0.18',
+                  }}
+                >
+                  <ProgressRing
+                    value={lastTrip.scoreValue}
+                    from={band.from}
+                    to={band.to}
+                    gradientId="home-hero"
+                    size={224}
+                    stroke={11}
+                    delay={0.1}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span className="eyebrow">Last drive</span>
+                      <span
+                        className="num mt-1 text-[68px] leading-none"
+                        style={{ color: band.to }}
+                      >
+                        {lastTrip.scoreValue}
+                      </span>
+                      <span className="mt-1.5 text-[13px] font-semibold text-ink-muted">
+                        {band.label}
+                      </span>
                     </div>
-                  </div>
-                  <div className="grid size-14 place-items-center rounded-2xl bg-white/15 backdrop-blur">
-                    <Compass size={28} />
-                  </div>
+                  </ProgressRing>
                 </div>
+              </Link>
+            ) : (
+              <div className="flex flex-col items-center py-6 text-center">
+                <ProgressRing
+                  value={0}
+                  from="#4EA8FF"
+                  to="#6E8BFF"
+                  gradientId="home-empty"
+                  size={224}
+                  stroke={11}
+                >
+                  <div className="flex flex-col items-center px-10">
+                    <span className="eyebrow">Road360 Score</span>
+                    <span className="num mt-1 text-[68px] leading-none text-ink-faint">--</span>
+                    <span className="mt-1.5 text-[13px] text-ink-muted">No drives yet</span>
+                  </div>
+                </ProgressRing>
               </div>
-            </Link>
+            )}
           </motion.div>
 
-          {/* Last trip */}
-          {loading ? (
-            <Skeleton className="h-36 rounded-card" />
-          ) : lastTrip ? (
-            <LastTripCard trip={lastTrip} />
-          ) : (
+          {/* Primary action */}
+          <motion.div variants={fadeUp} className="flex flex-col gap-3">
+            <Link
+              href="/drive"
+              className="flex h-14 items-center justify-center gap-2 rounded-pill bg-ink text-[16px] font-bold text-void transition-transform active:scale-[0.97]"
+            >
+              Start drive
+              <ArrowRight size={18} />
+            </Link>
+            {!lastTrip && !loading ? (
+              <Link
+                href="/drive?demo=1"
+                className="flex h-11 items-center justify-center gap-2 rounded-pill border border-hairline bg-surface text-[14px] font-semibold text-ink-muted transition-transform active:scale-[0.97]"
+              >
+                <Sparkles size={15} className="text-brand" />
+                Try a demo drive
+              </Link>
+            ) : null}
+          </motion.div>
+
+          {lastTrip ? (
             <motion.div variants={fadeUp}>
-              <div className="rounded-card glass p-6 text-center">
-                <Sparkles size={28} className="mx-auto mb-3 text-brand-bright" />
-                <h2 className="font-bold text-ink">No drives yet</h2>
-                <p className="mx-auto mt-1 max-w-xs text-sm text-ink-muted">
-                  Take your first drive, or try a demo to see the full report and score.
-                </p>
-                <Link
-                  href="/drive?demo=1"
-                  className="mt-4 inline-flex h-9 items-center gap-2 rounded-xl glass px-3.5 text-[13px] font-semibold text-ink active:scale-[0.97]"
-                >
-                  <Sparkles size={15} /> Try a demo drive
-                </Link>
+              <SectionLabel>Most recent</SectionLabel>
+              <LastTripCard trip={lastTrip} />
+            </motion.div>
+          ) : null}
+
+          {week ? (
+            <motion.div variants={fadeUp}>
+              <SectionLabel>This week</SectionLabel>
+              <div className="grid grid-cols-4 gap-2 rounded-card glass p-4">
+                <WeekCell label="Drives" value={String(week.count)} />
+                <WeekCell label="Avg" value={String(week.avgScore)} />
+                <WeekCell label="Distance" value={formatDistanceLong(week.distanceM)} />
+                <WeekCell label="Horns" value={String(week.horns)} />
               </div>
             </motion.div>
-          )}
+          ) : null}
 
-          {/* Lifetime stats */}
           {lifetime.tripCount > 0 ? (
-            <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3">
-              <LifetimeStat
-                icon={<TrendingUp size={16} />}
-                value={String(Math.round(lifetime.avgScore))}
-                label="Avg score"
-                accent="#818cf8"
-              />
-              <LifetimeStat
-                icon={<Megaphone size={16} />}
-                value={lifetime.totalHorns.toLocaleString()}
-                label="Total horns"
-                accent="#fbbf24"
-              />
-              <LifetimeStat
-                icon={<Route size={16} />}
-                value={formatDistanceLong(lifetime.totalDistanceM)}
-                label="Distance"
-                accent="#34d399"
-              />
+            <motion.div variants={fadeUp}>
+              <SectionLabel>Lifetime</SectionLabel>
+              <div className="rounded-card glass px-4 py-1">
+                <MetricRow label="Drives" value={lifetime.tripCount.toLocaleString()} />
+                <MetricRow label="Distance" value={formatDistanceLong(lifetime.totalDistanceM)} />
+                <MetricRow
+                  label="Time driving"
+                  value={formatDurationCompact(lifetime.totalDurationMs)}
+                />
+                <MetricRow label="Horns witnessed" value={lifetime.totalHorns.toLocaleString()} />
+                <MetricRow
+                  label="Average score"
+                  value={Math.round(lifetime.avgScore)}
+                  last
+                />
+              </div>
             </motion.div>
           ) : null}
         </motion.div>
@@ -105,24 +180,11 @@ export default function HomePage() {
   );
 }
 
-function LifetimeStat({
-  icon,
-  value,
-  label,
-  accent,
-}: {
-  icon: React.ReactNode;
-  value: string;
-  label: string;
-  accent: string;
-}) {
+function WeekCell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-tile glass p-3 text-center">
-      <div className="mx-auto mb-1.5 grid size-8 place-items-center rounded-lg" style={{ color: accent }}>
-        {icon}
-      </div>
-      <div className="text-lg font-bold text-ink tabular">{value}</div>
-      <div className="text-[10px] font-semibold tracking-wide text-ink-faint uppercase">{label}</div>
+    <div className="min-w-0">
+      <div className="eyebrow mb-1 truncate">{label}</div>
+      <div className="num truncate text-[17px] text-ink">{value}</div>
     </div>
   );
 }

@@ -52,7 +52,7 @@ function CursorLayer({ cursor }: { cursor: RouteMapProps['cursor'] }) {
     if (!markerRef.current) {
       const icon = L.divIcon({
         className: '',
-        html: `<div style="width:18px;height:18px;border-radius:50%;background:#818cf8;box-shadow:0 0 0 4px rgba(129,140,248,0.3),0 0 12px 2px rgba(129,140,248,0.8);border:2px solid #fff"></div>`,
+        html: `<div style="width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,0.18),0 0 14px 2px rgba(0,224,140,0.7)"></div>`,
         iconSize: [18, 18],
         iconAnchor: [9, 9],
       });
@@ -72,6 +72,51 @@ function CursorLayer({ cursor }: { cursor: RouteMapProps['cursor'] }) {
   return null;
 }
 
+/**
+ * Watches the tile layer and reports when the basemap has failed.
+ *
+ * Offline — or behind a network that blocks CARTO — Leaflet quietly renders
+ * empty tiles, which looks identical to a map centred on the sea. The route,
+ * markers and heat cells are all drawn client-side and are still correct, so
+ * the fix is to say the basemap is missing rather than to hide the panel.
+ */
+function TileHealth({ onFailed }: { onFailed: (failed: boolean) => void }) {
+  const map = useMap();
+
+  useEffect(() => {
+    let loaded = 0;
+    let errors = 0;
+
+    const onError = () => {
+      errors += 1;
+      // A couple of missing tiles at the edge of a zoom level is normal; a
+      // basemap that is genuinely unreachable fails far more than that.
+      if (errors >= 3 && loaded === 0) onFailed(true);
+    };
+    const onLoad = () => {
+      loaded += 1;
+      onFailed(false);
+    };
+
+    // A blocked network can hang the requests rather than reject them, in which
+    // case `tileerror` never fires and the panel would sit empty and unexplained
+    // forever. If nothing has painted after eight seconds, say so.
+    const timeout = setTimeout(() => {
+      if (loaded === 0) onFailed(true);
+    }, 8000);
+
+    map.on('tileerror', onError);
+    map.on('tileload', onLoad);
+    return () => {
+      clearTimeout(timeout);
+      map.off('tileerror', onError);
+      map.off('tileload', onLoad);
+    };
+  }, [map, onFailed]);
+
+  return null;
+}
+
 function EventMarkers({ markers }: { markers: EventMarker[] }) {
   const map = useMap();
   const layerRef = useRef<L.LayerGroup | null>(null);
@@ -81,7 +126,7 @@ function EventMarkers({ markers }: { markers: EventMarker[] }) {
     layerRef.current = group;
 
     for (const marker of markers) {
-      const color = marker.kind === 'horn' ? '#fbbf24' : '#fb7185';
+      const color = marker.kind === 'horn' ? '#FFC043' : '#FF5470';
       const glyph = marker.kind === 'horn' ? '📣' : '🛑';
       const icon = L.divIcon({
         className: '',
@@ -120,10 +165,11 @@ export default function RouteMap({
   className,
 }: RouteMapProps) {
   const [mounted, setMounted] = useState(false);
+  const [tilesFailed, setTilesFailed] = useState(false);
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    return <div className={className} style={{ background: '#0b0c11' }} aria-hidden />;
+    return <div className={className} style={{ background: '#0a0a0d' }} aria-hidden />;
   }
 
   const center: [number, number] = bounds
@@ -133,7 +179,12 @@ export default function RouteMap({
       : [51.5074, -0.1278];
 
   return (
-    <div className={className}>
+    <div className={`relative ${className ?? ''}`}>
+      {tilesFailed ? (
+        <div className="pointer-events-none absolute top-2 left-1/2 z-[500] -translate-x-1/2 rounded-pill border border-hairline bg-black/80 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-ink-faint uppercase">
+          Basemap offline · route is live
+        </div>
+      ) : null}
       <MapContainer
         center={center}
         zoom={14}
@@ -147,6 +198,7 @@ export default function RouteMap({
         style={{ width: '100%', height: '100%' }}
       >
         <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abcd" maxZoom={20} />
+        <TileHealth onFailed={setTilesFailed} />
 
         {heat?.map((cell, i) => (
           <Rectangle
@@ -181,7 +233,7 @@ export default function RouteMap({
         {polyline && polyline.length > 1 ? (
           <Polyline
             positions={polyline}
-            pathOptions={{ color: '#818cf8', weight: 4, opacity: 0.9, lineCap: 'round' }}
+            pathOptions={{ color: '#00E08C', weight: 4, opacity: 0.9, lineCap: 'round' }}
           />
         ) : null}
 

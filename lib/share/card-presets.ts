@@ -18,18 +18,18 @@ export const CARD_SIZES = {
 export type CardFormat = keyof typeof CARD_SIZES;
 
 export const CARD_PALETTE = {
-  background: '#07070A',
-  surface: '#151823',
-  border: '#272B3A',
-  ink: '#F7F8FA',
-  inkMuted: '#A2A8BB',
-  inkFaint: '#6B7186',
+  background: '#000000',
+  surface: '#0E0E11',
+  border: '#232329',
+  ink: '#FFFFFF',
+  inkMuted: '#9A9AA5',
+  inkFaint: '#62626E',
 } as const;
 
 /** Band gradients as hex pairs, mirroring lib/score/labels.ts. */
 export const CARD_BAND_COLORS = {
-  excellent: { from: '#34D399', to: '#22D3EE' },
-  normal: { from: '#60A5FA', to: '#818CF8' },
-  stressful: { from: '#FBBF24', to: '#FB923C' },
-  chaos: { from: '#FB7185', to: '#F43F5E' },
+  excellent: { from: '#00E08C', to: '#00C8B4' },
+  normal: { from: '#4EA8FF', to: '#6E8BFF' },
+  stressful: { from: '#FFC043', to: '#FF8A3D' },
+  chaos: { from: '#FF5470', to: '#FF2D55' },
 } as const;

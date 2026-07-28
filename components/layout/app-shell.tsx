@@ -32,12 +32,12 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <header className="mb-5 flex items-start justify-between gap-4">
-      <div>
-        <h1 className="text-[28px] leading-tight font-bold tracking-tight text-ink">{title}</h1>
-        {subtitle ? <p className="mt-1 text-sm text-ink-muted">{subtitle}</p> : null}
+    <header className="mb-6 flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <h1 className="text-[30px] leading-none font-bold tracking-[-0.02em] text-ink">{title}</h1>
+        {subtitle ? <p className="mt-2 text-[13px] text-ink-muted">{subtitle}</p> : null}
       </div>
-      {action}
+      {action ? <div className="shrink-0">{action}</div> : null}
     </header>
   );
 }

@@ -21,8 +21,8 @@ export const BANDS: readonly BandDefinition[] = [
     min: 80,
     label: 'Excellent',
     emoji: '🟢',
-    from: '#34D399',
-    to: '#22D3EE',
+    from: '#00E08C',
+    to: '#00C8B4',
     blurb: 'Genuinely calm. Whatever you did, do it again.',
   },
   {
@@ -30,8 +30,8 @@ export const BANDS: readonly BandDefinition[] = [
     min: 60,
     label: 'Normal',
     emoji: '🟡',
-    from: '#60A5FA',
-    to: '#818CF8',
+    from: '#4EA8FF',
+    to: '#6E8BFF',
     blurb: 'An ordinary commute. Nothing dramatic either way.',
   },
   {
@@ -39,8 +39,8 @@ export const BANDS: readonly BandDefinition[] = [
     min: 40,
     label: 'Stressful',
     emoji: '🟠',
-    from: '#FBBF24',
-    to: '#FB923C',
+    from: '#FFC043',
+    to: '#FF8A3D',
     blurb: 'That took something out of you.',
   },
   {
@@ -48,8 +48,8 @@ export const BANDS: readonly BandDefinition[] = [
     min: 0,
     label: 'Chaos',
     emoji: '🔴',
-    from: '#FB7185',
-    to: '#F43F5E',
+    from: '#FF5470',
+    to: '#FF2D55',
     blurb: 'Loud, jerky and relentless. You earned the rest of your day.',
   },
 ] as const;

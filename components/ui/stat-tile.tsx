@@ -9,11 +9,19 @@ interface StatTileProps {
   /** Renders a dimmed "sensor unavailable" treatment instead of a value. */
   unavailable?: boolean;
   unavailableHint?: string;
+  /** Tints the value only. Tiles never take a coloured background. */
   accent?: string;
   className?: string;
   flat?: boolean;
 }
 
+/**
+ * A single measurement: micro-label above, large numeral below.
+ *
+ * The accent colours the numeral rather than washing the tile, which is the
+ * whole difference between a dashboard and a set of coloured boxes — six tinted
+ * panels compete with each other, six tinted numbers read as one instrument.
+ */
 export function StatTile({
   label,
   icon,
@@ -28,37 +36,35 @@ export function StatTile({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-tile p-4',
+        'relative flex flex-col overflow-hidden rounded-tile p-4',
         flat ? 'glass-flat' : 'glass',
-        unavailable && 'opacity-55',
+        unavailable && 'opacity-50',
         className,
       )}
     >
-      {accent ? (
-        <div
-          className="pointer-events-none absolute -top-8 -right-8 size-24 rounded-full opacity-25 blur-2xl"
-          style={{ background: accent }}
-        />
-      ) : null}
-
-      <div className="mb-2 flex items-center gap-1.5">
-        {icon ? <span className="text-ink-faint">{icon}</span> : null}
-        <span className="text-[10px] font-semibold tracking-[0.13em] text-ink-faint uppercase">
-          {label}
-        </span>
+      <div className="mb-2.5 flex items-center gap-1.5">
+        {icon ? <span className="shrink-0 text-ink-faint">{icon}</span> : null}
+        <span className="eyebrow truncate">{label}</span>
       </div>
 
       {unavailable ? (
         <>
-          <div className="text-2xl font-bold text-ink-faint">—</div>
-          <div className="mt-1 text-[11px] leading-tight text-ink-faint">
+          <div className="num text-2xl text-ink-faint">—</div>
+          <div className="mt-1.5 text-[11px] leading-tight text-ink-faint">
             {unavailableHint ?? 'Sensor unavailable'}
           </div>
         </>
       ) : (
         <>
-          <div className="text-[2rem] leading-none font-bold text-ink">{children}</div>
-          {footnote ? <div className="mt-1.5 text-[11px] text-ink-muted">{footnote}</div> : null}
+          <div
+            className="num text-[2.125rem] leading-none text-ink"
+            style={accent ? { color: accent } : undefined}
+          >
+            {children}
+          </div>
+          {footnote ? (
+            <div className="mt-2 text-[11px] leading-tight text-ink-muted">{footnote}</div>
+          ) : null}
         </>
       )}
     </div>

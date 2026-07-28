@@ -9,10 +9,10 @@ import { staggerParent } from '@/components/motion/transitions';
 
 /** Colour a sub-score by how calm it is: green high, rose low. */
 function barColor(value: number): string {
-  if (value >= 75) return '#34d399';
-  if (value >= 50) return '#fbbf24';
-  if (value >= 30) return '#fb923c';
-  return '#fb7185';
+  if (value >= 75) return '#00E08C';
+  if (value >= 50) return '#FFC043';
+  if (value >= 30) return '#FF8A3D';
+  return '#FF5470';
 }
 
 /**
@@ -33,8 +33,7 @@ export function ScoreBreakdown({ score }: { score: Road360Score }) {
       <motion.div
         variants={staggerParent(0.05)}
         initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: '-40px' }}
+        animate="show"
         className="flex flex-col gap-3.5"
       >
         {SUB_SCORE_KEYS.map((key) => (
@@ -65,17 +64,16 @@ function SubScoreRow({ scoreKey, score }: { scoreKey: SubScoreKey; score: Road36
       variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
       className="flex flex-col gap-1.5"
     >
-      <div className="flex items-baseline justify-between">
-        <span className="text-sm font-medium text-ink">{label}</span>
-        <span className="text-xs text-ink-muted tabular">{rawLabel}</span>
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-[14px] font-medium text-ink">{label}</span>
+        <span className="num text-[12px] text-ink-muted">{rawLabel}</span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-white/8">
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
         <motion.div
           className="h-full rounded-full"
           style={{ background: barColor(sub.value) }}
           initial={{ width: 0 }}
-          whileInView={{ width: `${sub.value}%` }}
-          viewport={{ once: true }}
+          animate={{ width: `${sub.value}%` }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         />
       </div>
