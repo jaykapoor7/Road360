@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Trash2, MicOff, Cloud, Users, Info, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { Download, Trash2, MicOff, Cloud, Users, Info, RefreshCw, Stethoscope } from 'lucide-react';
 import { AppShell, PageHeader } from '@/components/layout/app-shell';
 import { TabBar } from '@/components/layout/tab-bar';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -165,6 +166,27 @@ export default function SettingsPage() {
                   <Trash2 size={16} /> Delete all data
                 </Button>
                 {message ? <p className="text-center text-xs text-mint">{message}</p> : null}
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Diagnostics */}
+          <motion.div variants={fadeUp}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Diagnostics</CardTitle>
+              </CardHeader>
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-ink-muted">
+                  Not sure a drive is recording properly? Run the sensor check to see live GPS,
+                  microphone and motion readings from this device.
+                </p>
+                <Link
+                  href="/check"
+                  className="flex h-11 items-center justify-center gap-2 rounded-pill border border-hairline bg-surface-2 text-[14px] font-semibold text-ink"
+                >
+                  <Stethoscope size={16} /> Run sensor check
+                </Link>
               </div>
             </Card>
           </motion.div>

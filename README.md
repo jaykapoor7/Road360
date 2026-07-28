@@ -288,7 +288,14 @@ skips it *silently* — the build succeeds, no service worker is emitted, and th
 installable. `pnpm build` is webpack for this reason.
 
 **Testing real sensors needs HTTPS.** `getUserMedia` and geolocation require a secure context.
-`localhost` counts; `http://192.168.x.x` does not. Use `pnpm dev:https`.
+`localhost` counts; `http://192.168.x.x` does not. Use `pnpm dev:https`. `/check` detects this and
+says so, rather than letting it look like the user declined a permission.
+
+**`/check` is the sensor self-test.** Everything else is verifiable headless; this is not. Open it
+on a real phone and it starts the *real* `SensorSuite` — the same objects through the same factory
+a drive uses — and prints live GPS fixes, dB level and acceleration. It is the first thing to look
+at when someone reports that a drive recorded nothing, and it is honest about failure: in headless
+Chromium it correctly reports motion as failed, because there is no accelerometer.
 
 **iOS motion permission.** `DeviceMotionEvent.requestPermission()` must be called synchronously
 inside a user gesture, and *any* await before it — including awaiting `getUserMedia` — loses the
