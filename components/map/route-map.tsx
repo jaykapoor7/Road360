@@ -23,6 +23,12 @@ export interface RouteMapProps {
   bounds?: [[number, number], [number, number]] | null;
   /** A moving marker for live drives and replay. */
   cursor?: { lat: number; lon: number; heading?: number } | null;
+  /** Where to sit before there is a route to frame. Defaults to a world view. */
+  center?: [number, number] | null;
+  /** Initial zoom. */
+  zoom?: number;
+  /** Keep the view centred on the cursor as it moves (live navigation). */
+  follow?: boolean;
   interactive?: boolean;
   className?: string;
 }
@@ -41,6 +47,38 @@ function FitBounds({ bounds }: { bounds: LatLngBoundsExpression | null }) {
   return null;
 }
 
+/**
+ * Keeps the view on the cursor during a live drive.
+ *
+ * Only re-centres when the marker drifts past the middle half of the viewport,
+ * not on every fix — a map that hard-recentres on every GPS update is
+ * genuinely nauseating to watch. The first fix snaps; after that it eases.
+ */
+function FollowCursor({ cursor, zoom }: { cursor: RouteMapProps['cursor']; zoom: number }) {
+  const map = useMap();
+  const framedOnce = useRef(false);
+
+  useEffect(() => {
+    if (!cursor) return;
+    const point = map.latLngToContainerPoint([cursor.lat, cursor.lon]);
+    const size = map.getSize();
+    const outside =
+      point.x < size.x * 0.25 ||
+      point.x > size.x * 0.75 ||
+      point.y < size.y * 0.25 ||
+      point.y > size.y * 0.75;
+
+    if (!framedOnce.current) {
+      map.setView([cursor.lat, cursor.lon], zoom, { animate: false });
+      framedOnce.current = true;
+    } else if (outside) {
+      map.panTo([cursor.lat, cursor.lon], { animate: true, duration: 0.6 });
+    }
+  }, [cursor, map, zoom]);
+
+  return null;
+}
+
 /** Glides a marker along a position that updates externally (live / replay). */
 function CursorLayer({ cursor }: { cursor: RouteMapProps['cursor'] }) {
   const map = useMap();
@@ -52,9 +90,9 @@ function CursorLayer({ cursor }: { cursor: RouteMapProps['cursor'] }) {
     if (!markerRef.current) {
       const icon = L.divIcon({
         className: '',
-        html: `<div style="width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,0.18),0 0 14px 2px rgba(0,224,140,0.7)"></div>`,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
+        html: `<div style="width:14px;height:14px;border-radius:50%;background:#34d9a0;border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(52,217,160,0.22),0 1px 6px 1px rgba(0,0,0,0.5)"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
       });
       markerRef.current = L.marker([cursor.lat, cursor.lon], { icon, interactive: false }).addTo(map);
     } else {
@@ -163,6 +201,9 @@ export default function RouteMap({
   heat,
   bounds,
   cursor,
+  center: centerProp,
+  zoom = 15,
+  follow = false,
   interactive = true,
   className,
 }: RouteMapProps) {
@@ -174,11 +215,17 @@ export default function RouteMap({
     return <div className={className} style={{ background: '#0a0a0d' }} aria-hidden />;
   }
 
+  // Prefer, in order: an explicit route to frame, the moving cursor, a supplied
+  // device centre, and only then a wide world view. Falling back to a fixed
+  // London default made every pre-fix map look like it was in the wrong city.
   const center: [number, number] = bounds
     ? [(bounds[0][0] + bounds[1][0]) / 2, (bounds[0][1] + bounds[1][1]) / 2]
     : cursor
       ? [cursor.lat, cursor.lon]
-      : [51.5074, -0.1278];
+      : centerProp
+        ? centerProp
+        : [20, 0];
+  const initialZoom = !bounds && !cursor && !centerProp ? 2 : zoom;
 
   return (
     <div className={`relative ${className ?? ''}`}>
@@ -189,7 +236,7 @@ export default function RouteMap({
       ) : null}
       <MapContainer
         center={center}
-        zoom={14}
+        zoom={initialZoom}
         preferCanvas
         zoomControl={false}
         attributionControl
@@ -201,6 +248,7 @@ export default function RouteMap({
       >
         <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abcd" maxZoom={20} />
         <TileHealth onFailed={setTilesFailed} />
+        {follow ? <FollowCursor cursor={cursor} zoom={zoom} /> : null}
 
         {heat?.map((cell, i) => (
           <Rectangle
@@ -218,6 +266,25 @@ export default function RouteMap({
           />
         ))}
 
+        {/* A soft dark casing under the coloured runs so the line reads on
+            both light roads and dark parks — the trick every good nav map uses
+            to keep a route legible over any basemap. */}
+        {runs && runs.length > 0
+          ? runs.map((run, i) => (
+              <Polyline
+                key={`casing-${i}`}
+                positions={run.points}
+                pathOptions={{
+                  color: '#000000',
+                  weight: 7,
+                  opacity: 0.5,
+                  lineCap: 'round',
+                  lineJoin: 'round',
+                }}
+              />
+            ))
+          : null}
+
         {runs?.map((run, i) => (
           <Polyline
             key={i}
@@ -225,7 +292,7 @@ export default function RouteMap({
             pathOptions={{
               color: INTENSITY_COLORS[run.level],
               weight: 4,
-              opacity: 0.9,
+              opacity: 0.95,
               lineCap: 'round',
               lineJoin: 'round',
             }}
@@ -233,10 +300,16 @@ export default function RouteMap({
         ))}
 
         {polyline && polyline.length > 1 ? (
-          <Polyline
-            positions={polyline}
-            pathOptions={{ color: '#34D9A0', weight: 4, opacity: 0.9, lineCap: 'round' }}
-          />
+          <>
+            <Polyline
+              positions={polyline}
+              pathOptions={{ color: '#000000', weight: 7, opacity: 0.5, lineCap: 'round', lineJoin: 'round' }}
+            />
+            <Polyline
+              positions={polyline}
+              pathOptions={{ color: '#34D9A0', weight: 4, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }}
+            />
+          </>
         ) : null}
 
         <EventMarkers markers={markers} />

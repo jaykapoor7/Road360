@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Download, Trash2, MicOff, Cloud, Users, Info, RefreshCw, Stethoscope } from 'lucide-react';
 import { AppShell, PageHeader } from '@/components/layout/app-shell';
@@ -14,13 +14,14 @@ import { getRepository } from '@/lib/storage/local-repository';
 import { buildTripExport } from '@/lib/storage/export';
 import { APP_VERSION } from '@/lib/config/constants';
 import { cn } from '@/lib/utils/cn';
-import { staggerParent, fadeUp } from '@/components/motion/transitions';
+import { staggerParent, fadeUp, SPRING } from '@/components/motion/transitions';
 
 export default function SettingsPage() {
   const { flags, update } = useSettings();
   const sync = useSync(flags.syncEnabled);
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [confirmingReset, setConfirmingReset] = useState(false);
 
   const exportData = async () => {
     setBusy('export');
@@ -45,21 +46,35 @@ export default function SettingsPage() {
       a.href = url;
       a.download = `road360-export-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
-      URL.revokeObjectURL(url);
-      setMessage(`Exported ${trips.length} drives.`);
+      // A delayed revoke — revoking immediately after click() cancels the
+      // download in some browsers before it has started.
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      setMessage(`Exported ${trips.length} ${trips.length === 1 ? 'drive' : 'drives'}.`);
     } finally {
       setBusy(null);
     }
   };
 
+  /**
+   * Wipe everything and hard-reload to the home screen.
+   *
+   * The reload is the fix for "delete isn't working": clearAll empties the
+   * object stores, but every other screen is still holding React state read
+   * before the wipe, so history and stats keep showing drives that are already
+   * gone. Reloading guarantees the whole app re-reads an empty database — and
+   * it replaces the unreliable window.confirm(), which some standalone PWA
+   * webviews silently suppress, with an in-app confirmation.
+   */
   const resetAll = async () => {
-    if (!confirm('Delete every recorded drive? This cannot be undone.')) return;
     setBusy('reset');
     try {
       await getRepository().clearAll();
-      setMessage('All local data deleted.');
-    } finally {
+      setConfirmingReset(false);
+      window.location.href = '/';
+    } catch {
       setBusy(null);
+      setConfirmingReset(false);
+      setMessage('Could not delete the data. Please try again.');
     }
   };
 
@@ -159,9 +174,15 @@ export default function SettingsPage() {
                   time.
                 </p>
                 <Button variant="subtle" full onClick={exportData} disabled={busy !== null}>
-                  <Download size={16} /> Export all drives (JSON)
+                  <Download size={16} />
+                  {busy === 'export' ? 'Exporting…' : 'Export all drives (JSON)'}
                 </Button>
-                <Button variant="danger" full onClick={resetAll} disabled={busy !== null}>
+                <Button
+                  variant="danger"
+                  full
+                  onClick={() => setConfirmingReset(true)}
+                  disabled={busy !== null}
+                >
                   <Trash2 size={16} /> Delete all data
                 </Button>
                 {message ? <p className="text-center text-xs text-mint">{message}</p> : null}
@@ -214,6 +235,60 @@ export default function SettingsPage() {
           </motion.div>
         </motion.div>
       </AppShell>
+
+      <AnimatePresence>
+        {confirmingReset ? (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div
+              className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+              onClick={() => setConfirmingReset(false)}
+              aria-hidden
+            />
+            <motion.div
+              role="alertdialog"
+              aria-label="Delete all data"
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 24, opacity: 0 }}
+              transition={SPRING.smooth}
+              className="relative z-10 m-4 w-full max-w-sm rounded-card border border-hairline bg-surface-2 p-5"
+            >
+              <div className="mb-2 grid size-10 place-items-center rounded-xl bg-crimson/12 text-rose">
+                <Trash2 size={18} />
+              </div>
+              <h2 className="text-[17px] font-bold text-ink">Delete all data?</h2>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
+                Every recorded drive, stat and achievement on this device will be permanently
+                removed. This cannot be undone. Export a copy first if you want to keep it.
+              </p>
+              <div className="mt-5 flex flex-col gap-2">
+                <Button
+                  variant="danger"
+                  full
+                  onClick={() => void resetAll()}
+                  disabled={busy === 'reset'}
+                >
+                  {busy === 'reset' ? 'Deleting…' : 'Delete everything'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  full
+                  onClick={() => setConfirmingReset(false)}
+                  disabled={busy === 'reset'}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <TabBar />
     </>
   );
