@@ -16,6 +16,10 @@ const PATTERNS: Record<HapticPattern, number | number[]> = {
 
 export function haptic(pattern: HapticPattern): void {
   if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
+  // Chrome blocks vibration until the user has interacted with the page and
+  // logs a console error for every blocked call. A demo drive opened straight
+  // from a link has no interaction yet, so skip the call rather than fail it.
+  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
   try {
     navigator.vibrate(PATTERNS[pattern]);
   } catch {
