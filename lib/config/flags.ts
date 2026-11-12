@@ -45,7 +45,7 @@ export const SETTINGS_KEYS = {
   flags: 'flags',
   calibrationOffset: 'audio.calibrationOffset',
   calibrated: 'audio.calibrated',
-  /** Disables the microphone entirely — see the iOS audio-ducking note in the README. */
+  /** Disables the microphone entirely. See the iOS audio-ducking note in docs/how-it-works.md. */
   silentMode: 'audio.silentMode',
   installPromptSeen: 'pwa.installPromptSeen',
   completedTripCount: 'stats.completedTripCount',
