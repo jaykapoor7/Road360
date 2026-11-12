@@ -66,7 +66,7 @@ export function ShareSheet({ trip, onClose }: { trip: TripRecord; onClose: () =>
         setNote('Saved to your downloads.');
       } else {
         const outcome = await shareCard(blob, filename, buildShareText(trip));
-        if (outcome === 'downloaded') setNote('Sharing unavailable — saved instead.');
+        if (outcome === 'downloaded') setNote('Sharing is unavailable here, so the card was saved instead.');
       }
       setStatus('done');
     } catch {
@@ -99,8 +99,8 @@ export function ShareSheet({ trip, onClose }: { trip: TripRecord; onClose: () =>
       );
       setNote(
         copied
-          ? 'Card copied — paste it into the post.'
-          : 'Card saved to downloads — attach it to the post.',
+          ? 'Card copied. Paste it into the post.'
+          : 'Card saved to downloads. Attach it to the post.',
       );
       setStatus('done');
     } catch {

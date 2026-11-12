@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Road360 — How chaotic was your commute?',
+    name: 'Road360: How chaotic was your commute?',
     short_name: 'Road360',
     description:
-      'Spotify Wrapped meets WHOOP, for your commute. Track horns, noise, hard braking and stop-and-go traffic, and get a Road360 Score for every drive.',
+      'Score every drive out of 100 from horns, road noise, hard braking and stop-and-go traffic. Everything is measured and stored on your phone.',
     id: '/',
     start_url: '/?src=pwa',
     display: 'standalone',

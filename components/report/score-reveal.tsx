@@ -57,7 +57,7 @@ export function ScoreReveal({ score }: { score: Road360Score }) {
         <p className="max-w-[17rem] text-[13px] leading-relaxed text-ink-muted">{band.blurb}</p>
         {score.provisional || score.coverage < 0.85 ? (
           <div className="mt-0.5 flex flex-wrap justify-center gap-2">
-            {score.provisional ? <Badge tone="warning">Short trip — provisional</Badge> : null}
+            {score.provisional ? <Badge tone="warning">Short trip, provisional score</Badge> : null}
             {score.coverage < 0.85 ? <Badge tone="neutral">Partial sensor data</Badge> : null}
           </div>
         ) : null}

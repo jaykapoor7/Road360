@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Spotify Wrapped + WHOOP for your commute.",
+  "description": "Scores a drive from horns, road noise, hard braking and stop-and-go traffic, on the phone.",
   "scripts": {
     "dev": "next dev",
     "dev:https": "next dev --experimental-https",

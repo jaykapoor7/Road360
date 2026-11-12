@@ -114,7 +114,7 @@ export default function CommunityPage() {
                   <div className="glass flex gap-2.5 rounded-tile p-3">
                     <Info size={16} className="mt-0.5 shrink-0 text-amber" />
                     <p className="text-xs leading-relaxed text-ink-muted">
-                      Not much data yet — {snapshot.totalContributions} road cells. Rankings need a
+                      Not much data yet: {snapshot.totalContributions} road cells. Rankings need a
                       few passes per stretch before they mean anything, so treat these as
                       provisional.
                     </p>

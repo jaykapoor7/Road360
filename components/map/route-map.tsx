@@ -33,9 +33,15 @@ export interface RouteMapProps {
   className?: string;
 }
 
-// CARTO Dark Matter: free, no API key, and the right aesthetic. Attribution is
-// a licence condition and is kept visible.
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+// CARTO Dark Matter. Attribution is a licence condition and is kept visible.
+// Since September 2026 CARTO only serves raster tiles with a basemap key (free,
+// and sent in every tile URL, so it is public by design; restrict it to your
+// domains in the CARTO dashboard). Without one, every tile is an "API key
+// required" notice. The route, markers and heat cells still draw either way.
+const CARTO_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+const TILE_URL = `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png${
+  CARTO_KEY ? `?key=${encodeURIComponent(CARTO_KEY)}` : ''
+}`;
 const TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
@@ -230,7 +236,7 @@ export default function RouteMap({
   return (
     <div className={`relative ${className ?? ''}`}>
       {tilesFailed ? (
-        <div className="pointer-events-none absolute top-2 left-1/2 z-[500] -translate-x-1/2 rounded-pill border border-hairline bg-black/80 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-ink-faint uppercase">
+        <div className="pointer-events-none absolute top-2 left-1/2 z-[500] -translate-x-1/2 rounded-pill border border-hairline bg-black/80 px-2.5 py-1 text-[10px] font-semibold tracking-wide whitespace-nowrap text-ink-faint uppercase">
           Basemap offline · route is live
         </div>
       ) : null}

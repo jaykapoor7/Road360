@@ -132,8 +132,8 @@ export function PermissionWizard({
               to the app's own Settings screen, which cannot grant it either.
             */
             <div className="max-w-[18rem] text-[12px] leading-relaxed text-amber">
-              Blocked. The drive will still record without it — the report says which signals were
-              missing. To turn it back on, use your browser&rsquo;s site permissions for this page.
+              Blocked. The drive will still record without it, and the report will say which signals
+              were missing. To turn it back on, use your browser&rsquo;s site permissions for this page.
             </div>
           ) : null}
         </motion.div>
