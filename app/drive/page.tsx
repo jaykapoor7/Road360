@@ -122,8 +122,8 @@ function DriveScreen() {
                 Ready to drive
               </h1>
               <p className="mx-auto mt-3 max-w-[19rem] text-[14px] leading-relaxed text-ink-muted">
-                Road360 listens for horns, feels every brake, and scores how chaotic your commute
-                really is.
+                Road360 listens for horns and feels for hard braking, then scores your commute
+                out of&nbsp;100.
               </p>
             </motion.div>
 
@@ -135,8 +135,8 @@ function DriveScreen() {
                 <Sparkles size={16} className="text-brand" /> Try a demo drive
               </Button>
               <p className="mt-1 text-center text-[12px] leading-relaxed text-ink-faint">
-                No sensors handy? The demo synthesises a real commute and runs it through the same
-                detector and scorer.
+                No sensors handy? The demo simulates a commute and runs it through the same detector
+                and scorer.
               </p>
             </motion.div>
           </>

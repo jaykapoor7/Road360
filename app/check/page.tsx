@@ -81,7 +81,7 @@ export default function SensorCheckPage() {
         setMotion({
           verdict: 'failed',
           lines: [],
-          note: 'Motion access was declined. iOS only asks once per page load — reload and tap Run again.',
+          note: 'Motion access was declined. iOS only asks once per page load, so reload and tap Run again.',
         });
       }
     }
@@ -120,10 +120,10 @@ export default function SensorCheckPage() {
                 lines: [
                   `${fix.lat.toFixed(5)}, ${fix.lon.toFixed(5)}`,
                   `accuracy ±${Math.round(fix.accuracy)} m`,
-                  fix.speed !== null ? `speed ${(fix.speed * 3.6).toFixed(1)} km/h` : 'speed —',
+                  fix.speed !== null ? `speed ${(fix.speed * 3.6).toFixed(1)} km/h` : 'speed unknown',
                 ],
                 ...(fix.accuracy > 50
-                  ? { note: 'Accuracy worse than 50 m — these fixes are rejected while driving.' }
+                  ? { note: 'Accuracy is worse than 50 m, so these fixes are rejected while driving.' }
                   : {}),
               }
             : { verdict: 'waiting', lines: [], note: 'Waiting for a fix…' },
@@ -211,7 +211,7 @@ export default function SensorCheckPage() {
             <CheckCard
               icon={<MapPin size={17} />}
               title="Location"
-              hint="Walk or drive a few metres — accuracy should settle under 20 m outdoors."
+              hint="Walk or drive a few metres. Accuracy should settle under 20 m outdoors."
               readout={gps}
             />
             <CheckCard

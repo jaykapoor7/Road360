@@ -149,7 +149,7 @@ export default function HomePage() {
                 className="flex h-11 items-center justify-center gap-2 rounded-pill border border-hairline bg-surface text-[14px] font-semibold text-ink-muted transition-transform active:scale-[0.97]"
               >
                 <Sparkles size={15} className="text-brand" />
-                Try a demo drive — no car needed
+                Try a demo drive, no car needed
               </Link>
             ) : null}
           </motion.div>

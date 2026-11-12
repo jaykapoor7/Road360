@@ -7,7 +7,7 @@ import { formatDistanceLong, formatDurationCompact } from '@/lib/utils/format';
  *
  * Every line is a measurement the report can be checked against. A share that
  * overstates the drive is the fastest way to make the whole score look made up,
- * so nothing here is generated — it is the same numbers the user just read,
+ * so nothing here is generated: it is the same numbers the user just read,
  * reformatted.
  */
 export function buildShareText(trip: TripRecord): string {
@@ -15,7 +15,7 @@ export function buildShareText(trip: TripRecord): string {
   const band = bandFor(score);
   const stats = trip.stats;
 
-  const parts = [`Road360 Score: ${score}/100 — ${band.label}.`];
+  const parts = [`Road360 Score: ${score}/100, ${band.label}.`];
 
   if (stats) {
     const detail: string[] = [];

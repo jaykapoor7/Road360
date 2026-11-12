@@ -112,7 +112,7 @@ export default function SettingsPage() {
                 <Toggle
                   icon={<Users size={16} />}
                   label="Contribute anonymous data"
-                  description="Share ~150 m road cells with no identifiers, endpoints trimmed by 250 m and times bucketed to hour-of-week. Powers future noise and braking heatmaps."
+                  description="For future community heatmaps: ~150 m road cells with no identifiers, the first and last 250 m trimmed and times rounded to hour-of-week. Not active yet, so nothing is sent."
                   checked={flags.contributeAnonymousData}
                   onChange={(v) => update({ contributeAnonymousData: v })}
                 />
@@ -121,7 +121,7 @@ export default function SettingsPage() {
                   label="Cloud sync"
                   description={
                     sync.isDemo
-                      ? 'No server is configured, so this syncs against an in-memory one — enough to see push, pull and conflict resolution work. Set NEXT_PUBLIC_SYNC_URL to point at a real backend.'
+                      ? 'Demo only. No server is configured, so this syncs with an in-memory stand-in on this device to show push, pull and conflict resolution. Set NEXT_PUBLIC_SYNC_URL to use a real backend.'
                       : 'Keep your drives in step across devices.'
                   }
                   checked={flags.syncEnabled}

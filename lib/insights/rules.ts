@@ -133,7 +133,7 @@ export const RULES: InsightRule[] = [
       c.stats.hornsPerMin < 6 &&
       c.stats.avgSecondsBetweenHorns !== null,
     render: (c) =>
-      `A horn every ${formatSecondsPrecise(c.stats.avgSecondsBetweenHorns ?? 0)} — busy, but survivable.`,
+      `A horn every ${formatSecondsPrecise(c.stats.avgSecondsBetweenHorns ?? 0)}. Busy, but survivable.`,
   },
 
   {
@@ -168,7 +168,7 @@ export const RULES: InsightRule[] = [
     render: (c) =>
       pick(c.rng, [
         'Your inputs were genuinely smooth the whole way.',
-        'Steady throttle, steady brakes — no drama.',
+        'Steady throttle and steady brakes. No drama.',
       ]),
   },
 
@@ -206,7 +206,7 @@ export const RULES: InsightRule[] = [
     tone: 'positive',
     applies: (c) => c.stats.noise.avgDb > 0 && c.stats.noise.avgDb < 60,
     render: (c) =>
-      `Unusually quiet at ${formatDb(c.stats.noise.avgDb)} — barely above conversation level.`,
+      `Unusually quiet at ${formatDb(c.stats.noise.avgDb)}, barely above conversation level.`,
   },
 
   {
@@ -234,7 +234,7 @@ export const RULES: InsightRule[] = [
       c.history === null
         ? pick(c.rng, [
             'Your first drive is on the board.',
-            'One drive down — the comparisons start from here.',
+            'One drive down. Comparisons start from here.',
           ])
         : pick(c.rng, [
             'A fairly ordinary drive by your standards.',

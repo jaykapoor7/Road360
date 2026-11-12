@@ -49,7 +49,7 @@ export function AchievementGrid({ views }: { views: AchievementView[] }) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: Math.min(i * 0.02, 0.3) }}
               className="flex flex-col items-center gap-1.5 text-center"
-              title={`${view.def.title} — ${view.def.description}`}
+              title={`${view.def.title}: ${view.def.description}`}
             >
               <div className="relative grid size-12 place-items-center">
                 {/* Progress ring on locked achievements that are under way. */}

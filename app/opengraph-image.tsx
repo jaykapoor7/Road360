@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Road360 — how chaotic was your commute?';
+export const alt = 'Road360: how chaotic was your commute?';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -79,8 +79,8 @@ export default function OpengraphImage() {
               display: 'flex',
             }}
           >
-            Horns, noise, hard braking and stop-and-go — measured on your phone,
-            scored out of 100.
+            Horns, noise, hard braking and stop-and-go, measured on your phone
+            and scored out of 100.
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import './globals.css';
 import { ServiceWorkerManager } from '@/components/common/service-worker';
 
 const DESCRIPTION =
-  'Spotify Wrapped meets WHOOP, for your commute. Track horns, noise, hard braking and stop-and-go traffic, and get a Road360 Score for every drive.';
+  'Score every drive out of 100 from horns, road noise, hard braking and stop-and-go traffic. Everything is measured and stored on your phone.';
 
 /**
  * `metadataBase` is what turns the generated `opengraph-image` into the
@@ -20,7 +20,7 @@ const APP_URL =
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
-  title: 'Road360 — How chaotic was your commute?',
+  title: 'Road360: How chaotic was your commute?',
   description: DESCRIPTION,
   applicationName: 'Road360',
   appleWebApp: {
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     apple: '/icons/apple-touch-icon.png',
   },
   openGraph: {
-    title: 'Road360 — How chaotic was your commute?',
+    title: 'Road360: How chaotic was your commute?',
     description: DESCRIPTION,
     siteName: 'Road360',
     type: 'website',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Road360 — How chaotic was your commute?',
+    title: 'Road360: How chaotic was your commute?',
     description: DESCRIPTION,
   },
 };

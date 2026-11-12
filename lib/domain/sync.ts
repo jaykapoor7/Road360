@@ -47,7 +47,7 @@ export interface RoadSegmentContribution {
 
 export class NotImplementedError extends Error {
   constructor(what: string) {
-    super(`${what} is not implemented — Road360 has no backend yet.`);
+    super(`${what} is not implemented: Road360 has no backend yet.`);
     this.name = 'NotImplementedError';
   }
 }
